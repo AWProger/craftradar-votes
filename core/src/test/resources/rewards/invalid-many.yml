@@ -1,0 +1,26 @@
+rewards:
+  enabled: "yes"
+  bogus: 1
+  timezone: "Mars/Olympus"
+  daily-limit: 1001
+  duplicate-protection: { enabled: true, retention-days: 0, extra: 1 }
+  default:
+    commands: ["/give {player} apple", "say {user}", "a\nb", "ok {player}"]
+    items:
+      - { material: NOT_A_MATERIAL, amount: 1 }
+      - { material: DIAMOND, amount: 2305 }
+      - { material: DIAMOND, amount: 1.5 }
+      - { amount: 1 }
+    money: .nan
+    message: 123
+    broadcast: "{Player}"
+  weighted-pool:
+    enabled: true
+    entries:
+      - { weight: 0, commands: [] }
+      - { weight: 5, broadcast: "no" }
+  streaks:
+    enabled: true
+    milestones:
+      - { days: 3651 }
+      - { repeat: true }

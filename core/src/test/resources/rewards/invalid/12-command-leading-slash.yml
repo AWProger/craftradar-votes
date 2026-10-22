@@ -1,0 +1,5 @@
+# expect: rewards.default.commands[0]
+rewards:
+  enabled: true
+  default:
+    commands: ["/give {player} stone"]

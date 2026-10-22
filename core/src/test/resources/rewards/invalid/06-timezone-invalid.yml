@@ -1,0 +1,4 @@
+# expect: rewards.timezone
+rewards:
+  enabled: true
+  timezone: "Mars/Olympus"

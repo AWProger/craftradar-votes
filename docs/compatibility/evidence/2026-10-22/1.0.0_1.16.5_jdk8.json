@@ -1,0 +1,46 @@
+{
+ "version": "1.16.5",
+ "java": "jdk8",
+ "jar": "craftradar-votes-1.0.0.jar",
+ "upgrade_from": "",
+ "no_votifier": false,
+ "passed": false,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "1.16.5"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": false,
+   "detail": ""
+  },
+  {
+   "id": "start1.empty_key_error",
+   "ok": false,
+   "detail": ""
+  },
+  {
+   "id": "start1.config_created",
+   "ok": false,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": false,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": false,
+   "detail": "[\"[15:30:05 ERROR]: Could not load 'plugins/craftradar-votes.jar' in folder 'plugins'\"]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": false,
+   "detail": "rc=0"
+  }
+ ],
+ "run_dir": "runs2/base100/1.16.5"
+}

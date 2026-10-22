@@ -1,0 +1,122 @@
+# CraftRadar Votes: сборка, тесты, проверка jar, compile-матрица API, ручной real-server прогон, детектор новых версий.
+# Ничего не публикует (нет upload/release/deploy), секретов не использует. Выпуск — только человеком (docs/compatibility/release-checklist.md).
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      realserver:
+        description: "Real-server прогон (версия из realserver/matrix.txt или all)"
+        required: false
+        default: ""
+  schedule:
+    - cron: "17 5 * * 1"   # раз в неделю: только детектор новых версий Paper
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: gradle/actions/wrapper-validation@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build, unit tests, verifyJar (bytecode <= Java 8, plugin.yml, gson relocate, без секретов)
+        run: ./gradlew build --no-daemon --stacktrace
+      - name: Воспроизводимость (вторая сборка с нуля даёт тот же SHA-256)
+        run: |
+          first=$(cut -d' ' -f1 bukkit/build/libs/SHA256SUMS)
+          ./gradlew clean :bukkit:verifyJar --no-daemon -q
+          second=$(cut -d' ' -f1 bukkit/build/libs/SHA256SUMS)
+          echo "$first / $second"; test "$first" = "$second"
+      - name: SHA-256 (для сверки, без загрузки артефактов)
+        run: cat bukkit/build/libs/SHA256SUMS
+
+  compile-matrix:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { api: "com.github.Bukkit:Bukkit:1.6.4-R2.0", jdk: "21" }
+          - { api: "org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT", jdk: "21" }
+          - { api: "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT", jdk: "21" }
+          - { api: "org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT", jdk: "21" }
+          - { api: "org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT", jdk: "21" }
+          - { api: "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT", jdk: "21" }
+          - { api: "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT", jdk: "21" }
+          - { api: "org.spigotmc:spigot-api:26.3-R0.1-SNAPSHOT", jdk: "25" }
+          - { api: "io.papermc.paper:paper-api:26.3.build.214-stable", jdk: "25" }
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: |
+            25
+            21
+      - name: Компиляция клея против ${{ matrix.api }} + проверка связывания (ApiLinkCheck)
+        run: |
+          ./gradlew --no-daemon -q :bukkit:shadowJar
+          args="-PbukkitApi=${{ matrix.api }} -PcompileJdk=${{ matrix.jdk }} -Porg.gradle.java.installations.fromEnv=JAVA_HOME_25_X64"
+          ./gradlew --no-daemon :bukkit:compileJava --rerun-tasks $args
+          cp=$(./gradlew --no-daemon -q :bukkit:printApiClasspath $args | tail -n 1)
+          "$JAVA_HOME_25_X64/bin/java" realserver/ApiLinkCheck.java bukkit/build/libs/craftradar-votes-*[0-9].jar "$cp"
+
+  realserver:
+    # Только вручную: качает Paper/JDK/NuVotifier по SHA-256 (realserver/artifacts.txt), поднимает сервер на localhost.
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.realserver != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Сборка
+        run: ./gradlew build --no-daemon -q
+      - name: Загрузка серверов и инструментов
+        run: |
+          realserver/fetch.sh
+          CRV_CACHE=$HOME/.cache/crv-realserver realserver/build_votifier19.sh
+          mkdir -p "$RUNNER_TEMP/bot" && cd "$RUNNER_TEMP/bot" && npm init -y >/dev/null && npm install --no-audit --no-fund --ignore-scripts mineflayer@4.39.0
+      - name: Real-server матрица
+        run: |
+          v="${{ github.event.inputs.realserver }}"; [ "$v" = all ] && v=""
+          CRV_TOOL_JAVA=$(which java) CRV_BOT_NODE_PATH="$RUNNER_TEMP/bot/node_modules" \
+            realserver/matrix.sh bukkit/build/libs/craftradar-votes-*[0-9].jar "$RUNNER_TEMP/runs" $v
+      - name: Итоги (result.json)
+        if: always()
+        run: find "$RUNNER_TEMP/runs" -name result.json -exec sh -c 'echo "== $1"; grep -E "\"(id|ok)\"" "$1" | paste - - | grep false || echo all ok' _ {} \;
+
+  new-versions:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Новые стабильные Paper вне матрицы (только предупреждение)
+        run: python3 -I realserver/check_new_versions.py

@@ -1,0 +1,26 @@
+rewards:
+  enabled: true
+  dry-run: true
+  services: [TopCraft, " MineServ "]
+  timezone: "Europe/Moscow"
+  daily-limit: 3
+  duplicate-protection: { enabled: true, retention-days: 14 }
+  offline-queue: { enabled: true, max-per-player: 20, expire-days: 3 }
+  default:
+    commands: ["give {player} apple 1", "eco give {player} 5"]
+    items:
+      - { material: DIAMOND, amount: 3 }
+    money: 10.5
+    message: "&aСпасибо, {player}!"
+    broadcast: "{player} проголосовал"
+  weighted-pool:
+    enabled: true
+    entries:
+      - { weight: 70, commands: ["say hi {player}"], money: 1 }
+      - { weight: 30, items: [{ material: EMERALD, amount: 2 }], message: "Повезло" }
+  streaks:
+    enabled: true
+    milestones:
+      - { days: 7, repeat: false, commands: ["lp user {player} parent add vip"] }
+      - { days: 30, repeat: true, money: 100 }
+  logging: { enabled: false }

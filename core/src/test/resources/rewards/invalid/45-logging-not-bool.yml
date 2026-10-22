@@ -1,0 +1,4 @@
+# expect: rewards.logging.enabled
+rewards:
+  enabled: true
+  logging: {enabled: 2}

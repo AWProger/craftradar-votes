@@ -1,0 +1,9 @@
+# expect: valid
+rewards:
+  enabled: true
+  weighted-pool:
+    entries: []
+  streaks:
+    milestones: []
+  default:
+    message: "Привет, {player}"

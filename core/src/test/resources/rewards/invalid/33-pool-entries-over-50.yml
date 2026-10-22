@@ -1,0 +1,6 @@
+# expect: rewards.weighted-pool.entries
+rewards:
+  enabled: true
+  weighted-pool:
+    enabled: true
+    entries: [{weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}, {weight: 1}]

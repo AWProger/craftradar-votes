@@ -1,0 +1,20 @@
+# expect: valid
+# сгенерировано tools/rewards_yaml_fixtures.mjs из assets/js/voting-rewards.js
+rewards:
+  enabled: true
+  dry-run: false
+  services: []
+  timezone: "UTC"
+  daily-limit: 1000
+  duplicate-protection: { enabled: true, retention-days: 30 }
+  offline-queue: { enabled: true, max-per-player: 1000, expire-days: 3650 }
+  default: { commands: ["say 0 {player}", "say 1 {player}", "say 2 {player}", "say 3 {player}", "say 4 {player}", "say 5 {player}", "say 6 {player}", "say 7 {player}", "say 8 {player}", "say 9 {player}", "say 10 {player}", "say 11 {player}", "say 12 {player}", "say 13 {player}", "say 14 {player}", "say 15 {player}", "say 16 {player}", "say 17 {player}", "say 18 {player}", "say 19 {player}"], items: [{material: STONE, amount: 2304}], money: 1000000000, message: "", broadcast: "" }
+  weighted-pool:
+    enabled: true
+    entries:
+      - {weight: 1000000, commands: ["a {player}"], items: [], money: 0, message: ""}
+  streaks:
+    enabled: true
+    milestones:
+      - {days: 3650, repeat: true, commands: ["b {player}"], items: [], money: 0, message: ""}
+  logging: { enabled: true }

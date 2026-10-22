@@ -1,0 +1,7 @@
+# expect: valid
+rewards:
+  enabled: true
+  services: ["TopCraft", "mctop"]
+  timezone: "America/New_York"
+  daily-limit: 5
+  default: { money: 10 }

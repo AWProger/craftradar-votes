@@ -1,0 +1,4 @@
+# expect: rewards.services
+rewards:
+  enabled: true
+  services: "topcraft"

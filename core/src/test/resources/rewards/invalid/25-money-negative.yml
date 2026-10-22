@@ -1,0 +1,5 @@
+# expect: rewards.default.money
+rewards:
+  enabled: true
+  default:
+    money: -5

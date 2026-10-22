@@ -1,0 +1,186 @@
+{
+ "version": "26.3",
+ "java": "jdk25",
+ "jar": "craftradar-votes-1.1.0-r1.jar",
+ "upgrade_from": "",
+ "no_votifier": false,
+ "passed": true,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "26.3"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": true,
+   "detail": "Enabling CraftRadarVotes v1.1.0"
+  },
+  {
+   "id": "start1.empty_key_error",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.config_created",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "start2.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start2.bridge_ready",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start2.rewards_enabled",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "vote.v2_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 13d9d7par8vte1bcqr0dlpk3h9\nv2 response: {\"status\":\"ok\"}"
+  },
+  {
+   "id": "vote.v1_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 7pg78tgq24e12vhlmkmgdf9dij\nv1 sent"
+  },
+  {
+   "id": "vote.v2_delivered_with_correlation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "vote.v1_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "transport.retry_after_503",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "transport.hmac_all_valid",
+   "ok": true,
+   "detail": "['simulated_503', 'accepted', 'accepted']"
+  },
+  {
+   "id": "diag.ack_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "rewards.offline_queued",
+   "ok": true,
+   "detail": "43f911fbb0cb35b273754f2a8c457a8e623204f\tBob\tсервис=TestList\n2026-10-22T15:07:56.626Z\tCOMPUTED\t5d4a1655913535506a156721643f911fbb0cb35b273754f2a8c457a8e623204f\tBob\tдействий=3, серия=0\n2026-10-22T15:07:56.627Z\tQUEUED\t5d4a1655913535506a156721643f911fbb0cb35b273754f2a8c457a8e623204f\tbob\tигрок не в сети\n"
+  },
+  {
+   "id": "rewards.diag_not_rewarded",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "rewards.duplicate_rejected",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "cmd.status",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "cmd.rewards_status",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "outage.vote_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 od2mg3kqjlo5fkt3gm6oe5cei6\nv2 response: {\"status\":\"ok\"}"
+  },
+  {
+   "id": "outage.simulated_503_seen",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "outage.queued_on_disk",
+   "ok": true,
+   "detail": "['dc600afd038efe5a100bb00a0dbaf8ea4a3c63889a4f36efc5f79ae86121fece.json']"
+  },
+  {
+   "id": "start2.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start2.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "start3.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.queue_restored",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.queued_vote_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.config_unchanged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.rewards_state_kept",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.dedupe_survives_restart",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start3.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  }
+ ],
+ "run_dir": "runs2/m110/jdk25/26.3"
+}

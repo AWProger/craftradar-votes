@@ -1,0 +1,8 @@
+# expect: valid
+rewards:
+  enabled: true
+  dry-run: true
+  offline-queue: { enabled: false }
+  duplicate-protection: { enabled: false }
+  logging: { enabled: false }
+  default: { commands: ["say {player} voted"] }

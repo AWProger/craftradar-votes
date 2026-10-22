@@ -1,0 +1,16 @@
+name: CraftRadarVotes
+version: '${version}'
+main: ru.craftradar.votes.CraftRadarVotesPlugin
+api-version: '1.13'
+description: Пересылает голоса Votifier/NuVotifier в CraftRadar (статистика и подтверждение доставки)
+author: CraftRadar
+softdepend: [Votifier, NuVotifier, Vault, VotingPlugin, SuperbVote]
+commands:
+  crvotes:
+    description: Управление мостом CraftRadar Votes
+    usage: "/crvotes <status|flush|reload|requeue [all|id]|rewards <status|test <ник> [dry]|reload>>"
+    permission: craftradar.votes.admin
+permissions:
+  craftradar.votes.admin:
+    description: Доступ к /crvotes
+    default: op

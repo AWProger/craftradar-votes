@@ -1,0 +1,10 @@
+# expect: valid
+rewards:
+  enabled: true
+  timezone: "Europe/Moscow"
+  streaks:
+    enabled: true
+    milestones:
+      - {days: 7, repeat: false, commands: ["eco give {player} 1000"]}
+      - {days: 30, repeat: true, items: [{material: NETHERITE_INGOT, amount: 1}], message: "&6Месяц подряд!"}
+      - {days: 3}

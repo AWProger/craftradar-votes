@@ -1,0 +1,6 @@
+# expect: rewards.weighted-pool.extra
+rewards:
+  enabled: true
+  weighted-pool:
+    enabled: true
+    extra: 1

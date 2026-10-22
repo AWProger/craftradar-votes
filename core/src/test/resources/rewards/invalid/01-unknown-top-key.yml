@@ -1,0 +1,4 @@
+# expect: rewards.foo
+rewards:
+  enabled: true
+  foo: 1

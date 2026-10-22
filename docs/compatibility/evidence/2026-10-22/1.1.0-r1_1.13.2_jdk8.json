@@ -1,0 +1,216 @@
+{
+ "version": "1.13.2",
+ "java": "jdk8",
+ "jar": "craftradar-votes-1.1.0-r1.jar",
+ "upgrade_from": "",
+ "no_votifier": false,
+ "passed": true,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "1.13.2"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": true,
+   "detail": "Enabling CraftRadarVotes v1.1.0"
+  },
+  {
+   "id": "start1.empty_key_error",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.config_created",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "start2.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start2.bridge_ready",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start2.rewards_enabled",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "vote.v2_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 sbuq74cjj3iig7af7d7e6e587e\nv2 response: {\"status\":\"ok\"}"
+  },
+  {
+   "id": "vote.v1_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 t0j29c06dmqrkbfps0e9bvc747\nv1 sent"
+  },
+  {
+   "id": "vote.v2_delivered_with_correlation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "vote.v1_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "transport.retry_after_503",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "transport.hmac_all_valid",
+   "ok": true,
+   "detail": "['simulated_503', 'accepted', 'accepted']"
+  },
+  {
+   "id": "diag.ack_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "rewards.offline_queued",
+   "ok": true,
+   "detail": "f66d79611ba82a73659d7ffb82d35943062513a\tBob\tсервис=TestList\n2026-10-22T14:38:01.331Z\tCOMPUTED\t0f77dc5860e6d2b0a0d88dd92f66d79611ba82a73659d7ffb82d35943062513a\tBob\tдействий=3, серия=0\n2026-10-22T14:38:01.336Z\tQUEUED\t0f77dc5860e6d2b0a0d88dd92f66d79611ba82a73659d7ffb82d35943062513a\tbob\tигрок не в сети\n"
+  },
+  {
+   "id": "rewards.diag_not_rewarded",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "rewards.duplicate_rejected",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "cmd.status",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "cmd.rewards_status",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "outage.vote_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 ltfm2e8gum7dj0ttrjqaatrc71\nv2 response: {\"status\":\"ok\"}"
+  },
+  {
+   "id": "outage.simulated_503_seen",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "outage.queued_on_disk",
+   "ok": true,
+   "detail": "['f17aff8d4d47cc3239640f1a5e7bd186cd94452387800eb87eb5cfec1764ffb9.json']"
+  },
+  {
+   "id": "start2.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start2.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "start3.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.queue_restored",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.queued_vote_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.config_unchanged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.rewards_state_kept",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.dedupe_survives_restart",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "bot.joined",
+   "ok": true,
+   "detail": "{\"chat\":\"[Server] CRV_REWARD Alice\"}\n{\"chat\":\"Спасибо за голос!\"}\n{\"chat\":\"Alice joined the game\"}\n{\"chat\":\"Alice has made the advancement [Diamonds!]\"}\n{\"spawned\":true,\"version\":\"1.13.2\"}\n"
+  },
+  {
+   "id": "bot.queued_command_reward",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "bot.queued_message_reward",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "bot.queued_item_reward",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "bot.online_vote_item",
+   "ok": true,
+   "detail": "as made the advancement [Diamonds!]\"}\n{\"spawned\":true,\"version\":\"1.13.2\"}\n{\"diamonds\":1}\n{\"diamonds\":1}\n{\"diamonds\":1}\n{\"chat\":\"[Server] CRV_REWARD Alice\"}\n{\"chat\":\"Спасибо за голос!\"}\n{\"diamonds\":2}\n"
+  },
+  {
+   "id": "bot.granted_logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start3.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  }
+ ],
+ "run_dir": "runs2/m110/jdk8/1.13.2"
+}

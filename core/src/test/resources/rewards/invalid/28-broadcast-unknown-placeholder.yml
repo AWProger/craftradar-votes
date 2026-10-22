@@ -1,0 +1,5 @@
+# expect: rewards.default.broadcast
+rewards:
+  enabled: true
+  default:
+    broadcast: "{player} {ip}"

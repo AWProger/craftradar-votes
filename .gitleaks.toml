@@ -1,0 +1,7 @@
+# Тестовые векторы подписи — заведомо фиктивные секреты (docs/PROTOCOL.md §3).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "protocol test vectors"
+paths = ['''^docs/protocol-vectors\.json$''']

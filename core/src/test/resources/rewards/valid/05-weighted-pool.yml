@@ -1,0 +1,9 @@
+# expect: valid
+rewards:
+  enabled: true
+  weighted-pool:
+    enabled: true
+    entries:
+      - {weight: 70, commands: ["crate key give {player} vote 1"], message: "&aКлюч"}
+      - {weight: 25, items: [{material: DIAMOND, amount: 3}]}
+      - {weight: 5, money: 1000, message: "&6Джекпот"}

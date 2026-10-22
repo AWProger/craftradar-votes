@@ -1,0 +1,4 @@
+# expect: rewards.duplicate-protection.enabled
+rewards:
+  enabled: true
+  duplicate-protection: {enabled: "no", retention-days: 30}

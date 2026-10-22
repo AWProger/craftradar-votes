@@ -1,0 +1,22 @@
+# name  sha256  url   — всё скачивается в $CRV_CACHE (вне репо) и проверяется по SHA-256.
+# Paper: https://fill.papermc.io/v3 (STABLE-сборки). JDK: Eclipse Temurin (api.adoptium.net).
+jdk8.tar.gz      9c70e102f527ac674ac2fe9c7d47b9a04e2d19842ba5ab8e9b33f368bbadfaea  https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u504-b01/OpenJDK8U-jdk_x64_linux_hotspot_8u504b01.tar.gz
+jdk17.tar.gz     3808d1d15e3ec6bd5b84057fb5d84c33d8a1536a258146bcea2e603fc726e08e  https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jdk_x64_linux_hotspot_17.0.20.1_1.tar.gz
+jdk25.tar.gz     68982529869257d0ee6b824ec5aa270ff8b118bb438670da0b97ebdab178d7fb  https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jdk_x64_linux_hotspot_25.0.5_8.tar.gz
+paper-1.7.10.jar   33772078d92e9dbb027602da016524ef29af5b4c12eaddac1fe2465b01108185  https://fill-data.papermc.io/v1/objects/33772078d92e9dbb027602da016524ef29af5b4c12eaddac1fe2465b01108185/paper-1.7.10-2025.jar
+paper-1.8.8.jar    7ff6d2cec671ef0d95b3723b5c92890118fb882d73b7f8fa0a2cd31d97c55f86  https://fill-data.papermc.io/v1/objects/7ff6d2cec671ef0d95b3723b5c92890118fb882d73b7f8fa0a2cd31d97c55f86/paper-1.8.8-445.jar
+paper-1.12.2.jar   3a2041807f492dcdc34ebb324a287414946e3e05ec3df6fd03f5b5f7d9afc210  https://fill-data.papermc.io/v1/objects/3a2041807f492dcdc34ebb324a287414946e3e05ec3df6fd03f5b5f7d9afc210/paper-1.12.2-1620.jar
+paper-1.13.2.jar   11e828d0565ab76a0a0e180c056364a95de44958cfd6a6af3f9b1dc70b03e9cd  https://fill-data.papermc.io/v1/objects/11e828d0565ab76a0a0e180c056364a95de44958cfd6a6af3f9b1dc70b03e9cd/paper-1.13.2-657.jar
+paper-1.16.5.jar   e67da4851d08cde378ab2b89be58849238c303351ed2482181a99c2c2b489276  https://fill-data.papermc.io/v1/objects/e67da4851d08cde378ab2b89be58849238c303351ed2482181a99c2c2b489276/paper-1.16.5-794.jar
+paper-1.17.1.jar   6cc1ee2f94253ce10b5374ed85fffc735a97d8f1b64db293683dfa24dd3cc05f  https://fill-data.papermc.io/v1/objects/6cc1ee2f94253ce10b5374ed85fffc735a97d8f1b64db293683dfa24dd3cc05f/paper-1.17.1-411.jar
+paper-1.20.4.jar   cabed3ae77cf55deba7c7d8722bc9cfd5e991201c211665f9265616d9fe5c77b  https://fill-data.papermc.io/v1/objects/cabed3ae77cf55deba7c7d8722bc9cfd5e991201c211665f9265616d9fe5c77b/paper-1.20.4-499.jar
+paper-1.20.6.jar   4b011f5adb5f6c72007686a223174fce82f31aeb4b34faf4652abc840b47e640  https://fill-data.papermc.io/v1/objects/4b011f5adb5f6c72007686a223174fce82f31aeb4b34faf4652abc840b47e640/paper-1.20.6-151.jar
+paper-1.21.11.jar  5ffef465eeeb5f2a3c23a24419d97c51afd7dbb4923ff42df9a3f58bba1ccfba  https://fill-data.papermc.io/v1/objects/5ffef465eeeb5f2a3c23a24419d97c51afd7dbb4923ff42df9a3f58bba1ccfba/paper-1.21.11-132.jar
+paper-26.1.2.jar   1d70b1dab9cf4a6de615209a536f3a45a2186240253c428213ce2188ab95e5f7  https://fill-data.papermc.io/v1/objects/1d70b1dab9cf4a6de615209a536f3a45a2186240253c428213ce2188ab95e5f7/paper-26.1.2-74.jar
+paper-26.2.jar     3cce0a4922baf79bd8e1275ee5ff9f073f24675770e09b0d4be9442d513e7a6b  https://fill-data.papermc.io/v1/objects/3cce0a4922baf79bd8e1275ee5ff9f073f24675770e09b0d4be9442d513e7a6b/paper-26.2-134.jar
+paper-26.3.jar     a5a9736819fee5029e0f8f2bf86ed628c34d944c345b845ab8f61d5f9b8a169e  https://fill-data.papermc.io/v1/objects/a5a9736819fee5029e0f8f2bf86ed628c34d944c345b845ab8f61d5f9b8a169e/paper-26.3-213.jar
+nuvotifier-2.7.3.jar 5fe5457e9ba7989dc9446f522a690e4e877236ba2fc5e90ed66fad33d3c69f39  https://github.com/NuVotifier/NuVotifier/releases/download/v2.7.3/nuvotifier.jar
+# classic Votifier 1.9 (vexsoftware, GPLv3): бинарных релизов нет — исходники тега v1.9, сборка build_votifier19.sh
+votifier-1.9-src.zip 8c79aca823759b47a4ad5735172e7f9c21090f89cb242b200f8fcd5611032378  https://github.com/vexsoftware/votifier/archive/refs/tags/v1.9.zip
+# Bukkit API 1.6.4-R2.0 (GPLv3, только API, без кода Mojang) — для ApiLinkCheck/сборки Votifier 1.9; jitpack собирает из github.com/Bukkit/Bukkit
+bukkit-api-1.6.4-R2.0.jar 72a7d5d0169b0fdfbec72d6b6ef6e90143166b68e3af8761e4c503df55f4c254  https://jitpack.io/com/github/Bukkit/Bukkit/1.6.4-R2.0/Bukkit-1.6.4-R2.0.jar

@@ -1,0 +1,5 @@
+# expect: rewards.default.sound
+rewards:
+  enabled: true
+  default:
+    sound: LEVEL_UP

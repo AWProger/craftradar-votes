@@ -1,0 +1,4 @@
+# expect: rewards.dry-run
+rewards:
+  enabled: true
+  dry-run: 1

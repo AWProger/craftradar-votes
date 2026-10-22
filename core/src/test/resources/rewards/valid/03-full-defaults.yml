@@ -1,0 +1,13 @@
+# expect: valid
+rewards:
+  enabled: false
+  dry-run: false
+  services: []
+  timezone: "UTC"
+  daily-limit: 0
+  duplicate-protection: { enabled: true, retention-days: 30 }
+  offline-queue: { enabled: true, max-per-player: 50, expire-days: 7 }
+  default: { commands: [], items: [], money: 0, message: "", broadcast: "" }
+  weighted-pool: { enabled: false, entries: [] }
+  streaks: { enabled: false, milestones: [] }
+  logging: { enabled: true }

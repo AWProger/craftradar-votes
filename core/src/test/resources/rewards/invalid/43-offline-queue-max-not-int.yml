@@ -1,0 +1,4 @@
+# expect: rewards.offline-queue.max-per-player
+rewards:
+  enabled: true
+  offline-queue: {enabled: true, max-per-player: "many"}

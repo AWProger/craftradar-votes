@@ -1,0 +1,4 @@
+# expect: rewards.daily-limit
+rewards:
+  enabled: true
+  daily-limit: 1001

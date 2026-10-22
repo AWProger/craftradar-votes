@@ -1,0 +1,18 @@
+# expect: valid
+# сгенерировано tools/rewards_yaml_fixtures.mjs из assets/js/voting-rewards.js
+rewards:
+  enabled: false
+  dry-run: true
+  services: ["CraftRadar"]
+  timezone: "America/New_York"
+  daily-limit: 3
+  duplicate-protection: { enabled: false, retention-days: 3650 }
+  offline-queue: { enabled: false, max-per-player: 50, expire-days: 7 }
+  default: { commands: ["give {player} bread 1"], items: [], money: 0, message: "", broadcast: "" }
+  weighted-pool:
+    enabled: false
+    entries: []
+  streaks:
+    enabled: false
+    milestones: []
+  logging: { enabled: false }

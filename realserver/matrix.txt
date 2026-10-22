@@ -1,0 +1,17 @@
+# paper-версия  JDK (имя из artifacts.txt или "system")  флаги run_scenario.py
+1.7.10   jdk8   --no-bot
+1.8.8    jdk8
+1.8.8    jdk8   --no-votifier
+1.12.2   jdk8
+1.13.2   jdk8
+1.16.5   jdk8
+1.17.1   jdk17
+1.20.4   jdk17
+1.20.6   jdk21
+1.21.11  jdk21
+1.21.11  jdk21  --no-votifier
+26.1.2   jdk25
+26.3     jdk25  --no-bot
+1.7.10   jdk8   --no-bot --classic-votifier
+1.8.8    jdk8   --classic-votifier
+26.2     jdk25  --no-bot

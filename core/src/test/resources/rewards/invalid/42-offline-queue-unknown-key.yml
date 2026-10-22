@@ -1,0 +1,4 @@
+# expect: rewards.offline-queue.ttl
+rewards:
+  enabled: true
+  offline-queue: {enabled: true, ttl: 5}

@@ -1,0 +1,6 @@
+# expect: rewards.streaks.milestones[0].days
+rewards:
+  enabled: true
+  streaks:
+    enabled: true
+    milestones: [{repeat: true}]

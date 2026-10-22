@@ -1,0 +1,5 @@
+# expect: rewards.default.items[0].amount
+rewards:
+  enabled: true
+  default:
+    items: [{material: DIAMOND, amount: 2305}]

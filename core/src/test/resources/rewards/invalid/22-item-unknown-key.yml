@@ -1,0 +1,5 @@
+# expect: rewards.default.items[0].enchant
+rewards:
+  enabled: true
+  default:
+    items: [{material: DIAMOND, amount: 1, enchant: SHARPNESS}]

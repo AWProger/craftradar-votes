@@ -1,0 +1,4 @@
+# expect: rewards.commands
+rewards:
+  enabled: true
+  commands: ["eco give {player} 1"]

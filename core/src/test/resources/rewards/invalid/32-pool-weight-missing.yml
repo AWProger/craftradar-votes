@@ -1,0 +1,6 @@
+# expect: rewards.weighted-pool.entries[0].weight
+rewards:
+  enabled: true
+  weighted-pool:
+    enabled: true
+    entries: [{commands: ["say x"]}]

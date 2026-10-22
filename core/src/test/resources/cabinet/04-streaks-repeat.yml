@@ -1,0 +1,20 @@
+# expect: valid
+# сгенерировано tools/rewards_yaml_fixtures.mjs из assets/js/voting-rewards.js
+rewards:
+  enabled: true
+  dry-run: false
+  services: []
+  timezone: "Europe/Moscow"
+  daily-limit: 0
+  duplicate-protection: { enabled: true, retention-days: 30 }
+  offline-queue: { enabled: true, max-per-player: 50, expire-days: 7 }
+  default: { commands: [], items: [], money: 0, message: "", broadcast: "" }
+  weighted-pool:
+    enabled: false
+    entries: []
+  streaks:
+    enabled: true
+    milestones:
+      - {days: 7, repeat: false, commands: ["eco give {player} 1000"], items: [], money: 0, message: ""}
+      - {days: 30, repeat: true, commands: [], items: [{material: NETHERITE_INGOT, amount: 1}], money: 0, message: "&6Месяц подряд!"}
+  logging: { enabled: true }

@@ -1,0 +1,16 @@
+# expect: valid
+rewards:
+  enabled: true
+  daily-limit: 1000
+  default:
+    commands: ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "cmd1 {player}", "cmd2 {player}", "cmd3 {player}", "cmd4 {player}", "cmd5 {player}", "cmd6 {player}", "cmd7 {player}", "cmd8 {player}", "cmd9 {player}", "cmd10 {player}", "cmd11 {player}", "cmd12 {player}", "cmd13 {player}", "cmd14 {player}", "cmd15 {player}", "cmd16 {player}", "cmd17 {player}", "cmd18 {player}", "cmd19 {player}"]
+    items: [{material: STONE, amount: 2304}]
+    money: 1000000000
+    message: "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm"
+    broadcast: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  weighted-pool:
+    enabled: true
+    entries: [{weight: 1000000}, {weight: 1}]
+  streaks:
+    enabled: true
+    milestones: [{days: 3650}, {days: 1, repeat: true}]

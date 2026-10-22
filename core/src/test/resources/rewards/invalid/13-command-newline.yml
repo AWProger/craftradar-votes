@@ -1,0 +1,5 @@
+# expect: rewards.default.commands[1]
+rewards:
+  enabled: true
+  default:
+    commands: ["say ok", "say a\nop {player}"]

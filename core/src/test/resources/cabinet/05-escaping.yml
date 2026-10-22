@@ -1,0 +1,18 @@
+# expect: valid
+# сгенерировано tools/rewards_yaml_fixtures.mjs из assets/js/voting-rewards.js
+rewards:
+  enabled: false
+  dry-run: false
+  services: ["My \"Mon\"", "B\\C", "Ещё"]
+  timezone: "UTC"
+  daily-limit: 0
+  duplicate-protection: { enabled: true, retention-days: 30 }
+  offline-queue: { enabled: true, max-per-player: 50, expire-days: 7 }
+  default: { commands: ["say \"hi\" \\o/ # не комментарий: ok"], items: [], money: 0, message: "a\"b\\c: #d e", broadcast: "{player} 'x'" }
+  weighted-pool:
+    enabled: false
+    entries: []
+  streaks:
+    enabled: false
+    milestones: []
+  logging: { enabled: true }

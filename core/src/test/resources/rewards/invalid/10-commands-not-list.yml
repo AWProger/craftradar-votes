@@ -1,0 +1,5 @@
+# expect: rewards.default.commands
+rewards:
+  enabled: true
+  default:
+    commands: "say hi"

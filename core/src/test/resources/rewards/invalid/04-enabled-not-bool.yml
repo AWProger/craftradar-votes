@@ -1,0 +1,3 @@
+# expect: rewards.enabled
+rewards:
+  enabled: "yes"

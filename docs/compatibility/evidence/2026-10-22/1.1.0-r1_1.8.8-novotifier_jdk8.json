@@ -1,0 +1,46 @@
+{
+ "version": "1.8.8",
+ "java": "jdk8",
+ "jar": "craftradar-votes-1.1.0-r1.jar",
+ "upgrade_from": "",
+ "no_votifier": true,
+ "passed": true,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "1.8.8"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": true,
+   "detail": "Enabling CraftRadarVotes v1.1.0"
+  },
+  {
+   "id": "start1.no_votifier_warning",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.config_created",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  }
+ ],
+ "run_dir": "runs2/m110/jdk8/1.8.8-novotifier"
+}

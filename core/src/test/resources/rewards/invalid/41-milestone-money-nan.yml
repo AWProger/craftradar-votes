@@ -1,0 +1,6 @@
+# expect: rewards.streaks.milestones[0].money
+rewards:
+  enabled: true
+  streaks:
+    enabled: true
+    milestones: [{days: 7, money: .nan}]

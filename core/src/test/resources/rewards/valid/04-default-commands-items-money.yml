@@ -1,0 +1,13 @@
+# expect: valid
+rewards:
+  enabled: true
+  default:
+    commands:
+      - "eco give {player} 100"
+      - "crate key give {player} vote 1"
+    items:
+      - {material: DIAMOND, amount: 3}
+      - {material: GOLDEN_APPLE, amount: 1}
+    money: 250.5
+    message: "&aСпасибо за голос, {player}!"
+    broadcast: "&e{player} проголосовал за сервер"

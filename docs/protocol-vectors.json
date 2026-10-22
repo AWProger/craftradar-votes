@@ -1,0 +1,46 @@
+{
+    "algorithm": "hex(HMAC-SHA256(secret, ts + \".\" + key_id + \".\" + body)), body = UTF-8 bytes as-is",
+    "note": "Test-only secrets. Canonical copy: craftradar-votes/docs/protocol-vectors.json; the site keeps a byte-identical copy.",
+    "vectors": [
+        {
+            "name": "vote_basic",
+            "secret": "s3cr3t",
+            "ts": "1761000000",
+            "key_id": "abc123keyid",
+            "body": "{\"service_name\":\"TopCraft\",\"username\":\"Steve\",\"uuid\":null,\"address\":\"203.0.113.7\",\"timestamp\":\"1761000000123\",\"external_id\":null,\"correlation_id\":null}",
+            "signature": "99f6d4a6f9fa27fe33115f817685a4af412b1e60cb25e1bd0052a2d303091257"
+        },
+        {
+            "name": "utf8_body_and_space_in_secret",
+            "secret": "secret with space",
+            "ts": "1700000000",
+            "key_id": "k",
+            "body": "{\"username\":\"Алекс\"}",
+            "signature": "55cc6bbce44954411d7715891dc22dcdd1d4e163717d4f9bf3cd568bcb120a75"
+        },
+        {
+            "name": "empty_object",
+            "secret": "0123456789abcdef0123456789abcdef",
+            "ts": "1",
+            "key_id": "key_01",
+            "body": "{}",
+            "signature": "13265f2c644a44092fb92d9119ac3e9d4bc1e10787e5993b80fe1a6d5198354d"
+        },
+        {
+            "name": "delivery_ack_crdv1",
+            "secret": "0000000000000000000000000000000000000000000000000000000000000000",
+            "ts": "1761000000",
+            "key_id": "crk_0123456789abcdef",
+            "body": "{\"service_name\":\"CraftRadar\",\"username\":\"Steve\",\"address\":\"203.0.113.7\",\"timestamp\":\"1761000000123\",\"external_id\":null,\"correlation_id\":\"0123456789abcdef\"}",
+            "signature": "6b2ff3156ead3ead44c9a1e7838ebc1bff77179910568757828584265f7bcbf6"
+        },
+        {
+            "name": "diagnostic_ack",
+            "secret": "0000000000000000000000000000000000000000000000000000000000000000",
+            "ts": "1761000000",
+            "key_id": "crk_0123456789abcdef",
+            "body": "{\"event_type\":\"diagnostic_ack\",\"diagnostic_id\":\"0123456789abcdef\",\"timestamp\":\"1761000000123\"}",
+            "signature": "961b2cf3d644663eab6e30335f5f17b863ab2050d10951ebc85462183cdf3a04"
+        }
+    ]
+}

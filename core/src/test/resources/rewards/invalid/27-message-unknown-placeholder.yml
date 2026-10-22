@@ -1,0 +1,5 @@
+# expect: rewards.default.message
+rewards:
+  enabled: true
+  default:
+    message: "Привет {name}"

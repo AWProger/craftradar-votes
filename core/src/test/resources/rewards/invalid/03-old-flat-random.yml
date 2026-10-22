@@ -1,0 +1,4 @@
+# expect: rewards.random
+rewards:
+  enabled: true
+  random: []

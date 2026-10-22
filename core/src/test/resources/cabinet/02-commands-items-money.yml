@@ -1,0 +1,18 @@
+# expect: valid
+# сгенерировано tools/rewards_yaml_fixtures.mjs из assets/js/voting-rewards.js
+rewards:
+  enabled: true
+  dry-run: false
+  services: []
+  timezone: "UTC"
+  daily-limit: 0
+  duplicate-protection: { enabled: true, retention-days: 30 }
+  offline-queue: { enabled: true, max-per-player: 50, expire-days: 7 }
+  default: { commands: ["eco give {player} 100", "broadcast {player} проголосовал"], items: [{material: DIAMOND, amount: 3}, {material: GOLDEN_APPLE, amount: 1}], money: 250.5, message: "&aСпасибо, {player}!", broadcast: "&e{player} проголосовал" }
+  weighted-pool:
+    enabled: false
+    entries: []
+  streaks:
+    enabled: false
+    milestones: []
+  logging: { enabled: true }

@@ -1,0 +1,3 @@
+GUARDED M com/vexsoftware/votifier/model/Vote getAdditionalData ()[B  (нет метода с такой сигнатурой)
+resolved=68 missing=0 guarded_missing=1
+java=1.8.0_504 loaded=277 load_fail=0
