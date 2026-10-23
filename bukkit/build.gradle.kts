@@ -69,6 +69,11 @@ tasks.assemble { dependsOn(verifyJar) }
 
 // Classpath API (для realserver/ApiLinkCheck.java): ./gradlew -q :bukkit:printApiClasspath -PbukkitApi=...
 tasks.register("printApiClasspath") {
+    // + gson: Vote из nuvotifier-api ссылается на com.google.gson, а API 1.6.4 gson не тянет (серверы с NuVotifier его дают)
     val cp = configurations.compileClasspath
-    doLast { println(cp.get().files.filter { !it.path.contains("/core/") }.joinToString(File.pathSeparator)) }
+    val rt = configurations.runtimeClasspath
+    doLast {
+        val files = cp.get().files.filter { !it.path.contains("/core/") } + rt.get().files.filter { it.name.startsWith("gson-") }
+        println(files.distinct().joinToString(File.pathSeparator))
+    }
 }

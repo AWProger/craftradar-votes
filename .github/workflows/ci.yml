@@ -36,9 +36,11 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Build, unit tests, verifyJar (bytecode <= Java 8, plugin.yml, gson relocate, без секретов)
-        run: ./gradlew build --no-daemon --stacktrace
+        # права файлов попадают в jar: umask 002 + g+w, как у сборки выпуска 1.1.0 (иначе другой SHA-256, см. BUILDING.md)
+        run: umask 002 && chmod -R g+w . && ./gradlew build --no-daemon --stacktrace
       - name: Воспроизводимость (вторая сборка с нуля даёт тот же SHA-256)
         run: |
+          umask 002
           first=$(cut -d' ' -f1 bukkit/build/libs/SHA256SUMS)
           ./gradlew clean :bukkit:verifyJar --no-daemon -q
           second=$(cut -d' ' -f1 bukkit/build/libs/SHA256SUMS)
