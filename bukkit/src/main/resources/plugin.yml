@@ -4,7 +4,7 @@ main: ru.craftradar.votes.CraftRadarVotesPlugin
 api-version: '1.13'
 description: Пересылает голоса Votifier/NuVotifier в CraftRadar (статистика и подтверждение доставки)
 author: CraftRadar
-softdepend: [Votifier, NuVotifier, Vault, VotingPlugin, SuperbVote]
+softdepend: [Votifier, NuVotifier, Vault, VotingPlugin, SuperbVote, SkinsRestorer]
 commands:
   crvotes:
     description: Управление мостом CraftRadar Votes

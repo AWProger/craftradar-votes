@@ -11,6 +11,7 @@ subprojects {
         maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://jitpack.io")
+        maven("https://repo.codemc.org/repository/maven-public/")   // SkinsRestorer API (модуль skins)
     }
     // JDK сборки: 21; для compile-матрицы против API на Java 25 (Paper 26.x): -PcompileJdk=25
     val compileJdk = providers.gradleProperty("compileJdk").getOrElse("21").toInt()

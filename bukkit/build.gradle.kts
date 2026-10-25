@@ -12,6 +12,7 @@ dependencies {
     compileOnly(bukkitApi)
     compileOnly("com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.1")    // Vote (у classic Votifier 1.9 нет getAdditionalData — обёрнуто)
     compileOnly("com.github.NuVotifier.NuVotifier:nuvotifier-bukkit:2.7.1") { isTransitive = false } // VotifierEvent
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.0.0") { isTransitive = false } // модуль skins: самое старое API 15.x (методы есть и в 15.12)
     testImplementation("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT") { exclude(group = "org.ow2.asm") }
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -55,7 +56,9 @@ val verifyJar by tasks.registering {
             val cfg = String(z.getInputStream(z.getEntry("config.yml")).readBytes(), Charsets.UTF_8)
             if (!Regex("(?m)^secret: \"\"").containsMatchIn(cfg) || !Regex("(?m)^key_id: \"\"").containsMatchIn(cfg)) errs += "config.yml: key_id/secret должны быть пустыми"
             if (!Regex("(?m)^api_url: \"https://craftradar.ru\"").containsMatchIn(cfg)) errs += "config.yml: api_url по умолчанию"
-            if (!Regex("(?m)^  enabled: false").containsMatchIn(cfg)) errs += "config.yml: rewards.enabled по умолчанию false"
+            if (!Regex("(?m)^rewards:\\s*\\n  enabled: false").containsMatchIn(cfg)) errs += "config.yml: rewards.enabled по умолчанию false"
+            if (!Regex("(?m)^skins:\\s*\\n  enabled: false").containsMatchIn(cfg)) errs += "config.yml: skins.enabled по умолчанию false"
+            if (!yml.contains("SkinsRestorer")) errs += "plugin.yml: SkinsRestorer в softdepend"
             if (!names.contains("META-INF/gson-LICENSE.txt")) errs += "нет лицензии gson"
         }
         if (errs.isNotEmpty()) throw GradleException("verifyJar:\n" + errs.joinToString("\n"))

@@ -45,6 +45,9 @@ public final class CraftRadarVotesPlugin extends JavaPlugin implements Listener 
     private RewardJournal rewardsJournal;
     private boolean rewardsRecovered, journalLogging;
     private EconomyBridge economy;
+    // скины: модуль есть, только если skins.enabled и SkinsRestorer 15.x включён (SkinsModule ссылается на его API)
+    private volatile SkinsModule skins;
+    private volatile String skinsState = "выключены";
 
     @Override public void onEnable() {
         saveDefaultConfig();
@@ -53,6 +56,8 @@ public final class CraftRadarVotesPlugin extends JavaPlugin implements Listener 
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler public void onJoin(PlayerJoinEvent e) {
                 RewardsEngine r = rewards;
+                SkinsModule s = skins;
+                if (s != null) s.onJoin(e.getPlayer());   // асинхронно, не мешает наградам
                 if (r == null) return;
                 try { r.onJoin(e.getPlayer().getName()); }
                 catch (Exception ex) { getLogger().log(Level.SEVERE, "Награды: ошибка выдачи очереди при входе: " + ex); }
@@ -201,6 +206,7 @@ public final class CraftRadarVotesPlugin extends JavaPlugin implements Listener 
             stopForwarder();
             reloadConfig();
             loadRewards();
+            loadSkins();
             registerListener();   // награды получают голос и при выключенном/ненастроенном мосте (fwd тогда null)
             FileConfiguration c = getConfig();
             Settings s = new Settings(c.getBoolean("enabled", true), c.getString("api_url", ""),
@@ -229,6 +235,34 @@ public final class CraftRadarVotesPlugin extends JavaPlugin implements Listener 
             } catch (Exception e) {
                 getLogger().severe("Не удалось инициализировать очередь: " + e);
             }
+        }
+    }
+
+    /** Модуль skins (README, раздел «Скины CraftRadar»): без SkinsRestorer или с невалидным адресом — спит с понятным логом. */
+    private void loadSkins() {
+        skins = null;
+        FileConfiguration c = getConfig();
+        if (!c.getBoolean("skins.enabled", false)) { skinsState = "выключены (skins.enabled: false)"; return; }
+        String base = String.valueOf(c.getString("skins.api_url", "https://craftradar.ru")).trim().replaceAll("/+$", "");
+        if (!base.startsWith("https://") && !(base.startsWith("http://") && c.getBoolean("allow_insecure_http", false))) {
+            skinsState = "выключены: skins.api_url должен начинаться с https://";
+            getLogger().severe("Скины: " + skinsState);
+            return;
+        }
+        if (!getServer().getPluginManager().isPluginEnabled("SkinsRestorer")) {
+            skinsState = "спят: SkinsRestorer не установлен";
+            getLogger().info("Скины: skins.enabled=true, но SkinsRestorer не найден — модуль спит. Установите SkinsRestorer 15.x и перезапустите сервер.");
+            return;
+        }
+        int timeout = Math.max(500, Math.min(10_000, c.getInt("skins.timeout_ms", 3000)));
+        int minutes = Math.max(1, Math.min(1440, c.getInt("skins.cache_minutes", 10)));
+        try {
+            skins = new SkinsModule(this, new SkinLookup(base, timeout, minutes * 60_000L, System::currentTimeMillis));
+            skinsState = "включены: " + base + ", кэш " + minutes + " мин";
+            getLogger().info("Скины CraftRadar " + skinsState + " (через SkinsRestorer; выбранный игроком /skin не трогаем).");
+        } catch (IllegalStateException | LinkageError e) {   // LinkageError: SkinsRestorer 14 и старше — другое API
+            skinsState = "спят: API SkinsRestorer 15.x недоступно";
+            getLogger().warning("Скины: " + skinsState + " (" + e + "). Нужен SkinsRestorer 15.x; в режиме прокси включите API на бэкенде по инструкции SkinsRestorer.");
         }
     }
 
@@ -278,6 +312,7 @@ public final class CraftRadarVotesPlugin extends JavaPlugin implements Listener 
         } else if (sub.equals("rewards")) {
             rewardsCmd(sender, args);
         } else if (sub.equals("status")) {
+            sender.sendMessage("Скины: " + skinsState);
             if (f == null) { sender.sendMessage("CraftRadarVotes: мост выключен или не настроен."); return true; }
             sender.sendMessage("Очередь: " + f.queueSize() + ", в rejected/: " + f.rejectedCount() + " (макс. " + DiskQueue.REJECTED_CAP + ")");
             sender.sendMessage("Последний успех: " + (f.lastSuccess() == 0 ? "нет" : Instant.ofEpochMilli(f.lastSuccess())));
