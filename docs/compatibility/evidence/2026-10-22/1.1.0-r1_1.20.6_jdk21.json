@@ -174,7 +174,7 @@
   {
    "id": "bot.joined",
    "ok": true,
-   "detail": "7-aa70e3c6dc50/scratchpad/plugin_compat/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:696:9)\n{\"chat\":\"Спасибо за голос!\"}\n{\"chat\":\"Alice joined the game\"}\n{\"chat\":\"Alice has made the advancement [Diamonds!]\"}\n{\"spawned\":true,\"version\":\"1.20.6\"}\n{\"chat\":\"[Server] CRV_REWARD Alice\"}\n"
+   "detail": "…/node_modules/protodef/src/compiler.js:262:12), <anonymous>:696:9)\n{\"chat\":\"Спасибо за голос!\"}\n{\"chat\":\"Alice joined the game\"}\n{\"chat\":\"Alice has made the advancement [Diamonds!]\"}\n{\"spawned\":true,\"version\":\"1.20.6\"}\n{\"chat\":\"[Server] CRV_REWARD Alice\"}\n"
   },
   {
    "id": "bot.queued_command_reward",
