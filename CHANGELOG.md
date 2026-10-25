@@ -1,6 +1,6 @@
 # Changelog
 
-## Не выпущено
+## 1.2.0 — 2026-10-25
 
 * Модуль `skins` (по умолчанию выключен): скин CraftRadar по нику через SkinsRestorer 15.x (официальное API, MineSkin самого SR). Скин, выбранный в SR вручную, не трогается; без SkinsRestorer модуль спит. `softdepend` += `SkinsRestorer`; в `/crvotes status` — строка «Скины». Протокол голосов не менялся.
 
