@@ -41,6 +41,14 @@
             "key_id": "crk_0123456789abcdef",
             "body": "{\"event_type\":\"diagnostic_ack\",\"diagnostic_id\":\"0123456789abcdef\",\"timestamp\":\"1761000000123\"}",
             "signature": "961b2cf3d644663eab6e30335f5f17b863ab2050d10951ebc85462183cdf3a04"
+        },
+        {
+            "name": "pull_request",
+            "secret": "0000000000000000000000000000000000000000000000000000000000000000",
+            "ts": "1761000000",
+            "key_id": "crk_0123456789abcdef",
+            "body": "{\"ack\":[\"0123456789abcdef\"],\"limit\":50}",
+            "signature": "aad62c30d937ca905fed48a128b32441cc262adf093c90bce2b7c7d4ffe9eddd"
         }
     ]
 }
