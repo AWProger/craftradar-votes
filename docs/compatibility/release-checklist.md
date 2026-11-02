@@ -6,6 +6,7 @@
 - [ ] CI `compile-matrix` зелёный по всем API.
 - [ ] Real-server матрица (`realserver/matrix.sh`) по всем строкам `matrix.txt` — PASS; результаты перенесены в `docs/compatibility/minecraft-matrix.md`.
 - [ ] Апгрейд с прошлой версии: `run_scenario.py --upgrade-from <старый.jar>` — PASS (конфиг не изменён, очередь и дедуп пережили смену jar).
+- [ ] Способ «Наш плагин»: `run_scenario.py --pull` (строки `--pull` в `matrix.txt`) — PASS (голос из `vote_pull` награждён один раз и подтверждён, после рестарта дубля нет).
 - [ ] В jar нет секретов: `config.yml` с пустыми `key_id`/`secret`, `api_url` = `https://craftradar.ru` (проверяет `verifyJar`).
 - [ ] `docs/PROTOCOL.md`, `docs/REWARDS.md`, `protocol-vectors.json` сверены с сайтом (support-policy.md → «Синхронизация»).
 - [ ] Владелец дал разрешение на публикацию. Публикуются jar + SHA-256 + changelog + ссылка на матрицу.

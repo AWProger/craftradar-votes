@@ -2,11 +2,14 @@
 """Real-server сценарий CraftRadar Votes: настоящий Paper + NuVotifier + плагин, голоса по Votifier v1/v2, мок CraftRadar.
 
   python3 -I realserver/run_scenario.py --version 1.20.4 --java <java> --jar <plugin.jar> --cache <dir> --work <dir> [--port-base N]
-        [--no-votifier] [--upgrade-from <old.jar>]
+        [--no-votifier] [--upgrade-from <old.jar>] [--pull]
+
+--pull: способ «Наш плагин» без NuVotifier — голос ставится в очередь мока vote_pull, плагин забирает и подтверждает его,
+награда считается один раз; после рестарта (и после потери pull-state.json) повтор того же id не награждается.
 
 Только localhost, тестовые ключи. Итог: <work>/<name>/result.json (+ console-*.log, mock.jsonl). Код выхода 0 = все проверки PASS.
 """
-import argparse, json, os, re, shutil, signal, subprocess, sys, time, zipfile
+import argparse, json, os, re, shutil, signal, subprocess, sys, time, urllib.request, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 KEY, SECRET = "crk_test00000000ab", "test-secret-not-real"
@@ -21,6 +24,7 @@ ap.add_argument("--work", required=True)
 ap.add_argument("--port-base", type=int, default=31000)
 ap.add_argument("--no-votifier", action="store_true")
 ap.add_argument("--upgrade-from", default="")
+ap.add_argument("--pull", action="store_true", help="сценарий pull (vote_pull.php) без NuVotifier")
 ap.add_argument("--classic-votifier", action="store_true", help="classic Votifier 1.9 (только v1, без additionalData) вместо NuVotifier")
 ap.add_argument("--bot", default=os.environ.get("CRV_BOT_NODE_PATH", ""), help="node_modules с mineflayer: проверка выдачи наград игроку")
 ap.add_argument("--no-bot", action="store_true", help="версия не поддерживается mineflayer: награды игроку не проверяются (NOT_TESTED)")
@@ -28,7 +32,7 @@ ap.add_argument("--bot-version", default="", help="версия протокол
 ap.add_argument("--javac", default=os.environ.get("CRV_TOOL_JAVA", "java"), help="java 11+ для VoteSend.java")
 a = ap.parse_args()
 
-name = a.version + ("-novotifier" if a.no_votifier else "") + ("-classic" if a.classic_votifier else "") + ("-upgrade" if a.upgrade_from else "")
+name = a.version + ("-novotifier" if a.no_votifier else "") + ("-classic" if a.classic_votifier else "") + ("-upgrade" if a.upgrade_from else "") + ("-pull" if a.pull else "")
 wd = os.path.join(a.work, name)
 if os.path.exists(wd):
     sys.exit(f"{wd} уже существует: укажите новый --work (старые прогоны не удаляются)")
@@ -213,14 +217,91 @@ def wait_text(path, pattern, timeout):
     return False
 
 
-def main():
+def start_mock(fail_first):
     global mock
+    mock = subprocess.Popen([sys.executable, "-I", os.path.join(HERE, "mock_craftradar.py"), "--port", str(HTTP), "--key", KEY,
+                             "--secret", SECRET, "--log", os.path.join(wd, "mock.jsonl"), "--fail-first", str(fail_first),
+                             "--down", os.path.join(wd, "down.flag")], start_new_session=True)
+
+
+def mock_ctl(obj=None):
+    """Без obj — состояние мока (/_mock/state), с obj — поставить голоса/диагностику (/_mock/queue). Ждёт, пока мок поднимется."""
+    end = time.time() + 15
+    while True:
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{HTTP}/_mock/" + ("state" if obj is None else "queue"),
+                                         data=None if obj is None else json.dumps(obj).encode())
+            with urllib.request.urlopen(req, timeout=5) as f:
+                return json.loads(f.read())
+        except OSError:
+            if time.time() > end:
+                raise
+            time.sleep(0.5)
+
+
+def pull_flow():
+    """Способ «Наш плагин»: голос из очереди сайта -> награда один раз -> ack; повторная выдача id после рестарта не награждает."""
+    rl = os.path.join(srv, "plugins", "CraftRadarVotes", "rewards.log")
+    ps = os.path.join(srv, "plugins", "CraftRadarVotes", "pull-state.json")
+    vid, vid2, did = "a1b2c3d4e5f60718", "0f1e2d3c4b5a6978", "00112233aabbccdd"
+    computed = lambda v: len(re.findall(rf"(?m)\tCOMPUTED\tcrdv1:{v}\t", read(rl)))
+    acked = lambda v, t0: wait_mock(lambda e: e.get("verdict") == "pull" and v in e.get("ack", []) and e["t"] >= t0, 60)
+    plugin_config()
+    start_mock(1)   # первый запрос (опрос) -> 503 ingest_disabled: обычный повтор
+    vote = {"id": vid, "username": "Dave", "timestamp": str(int(time.time() * 1000))}
+    mock_ctl({"votes": [vote], "diagnostics": [did]})   # голос ждёт на сайте, пока сервер выключен
+    s = Server("2-pull")
+    check("pull.server_done", s.wait(r"Done \(", 300))
+    check("pull.bridge_ready", re.search(r"Готово: ключ \S+, сайт http://127\.0\.0\.1:\d+, голоса CraftRadar забираются", s.text()))
+    check("pull.vote_fetched", wait_mock(lambda e: e.get("verdict") == "pull" and vid in e.get("votes", []), 90))
+    check("pull.vote_acked", acked(vid, 0) and mock_ctl()["pending"] == [], mock_ctl())
+    check("pull.reward_once", computed(vid) == 1 and re.search(rf"(?i)QUEUED\tcrdv1:{vid}\tdave", read(rl)), read(rl)[-300:])
+    check("pull.diag_ack_delivered", wait_mock(lambda e: accepted(etype="diagnostic_ack")(e) and e["event"].get("diagnostic_id") == did, 60)
+          and mock_ctl()["diagnostics"] == [])
+    check("pull.diag_not_rewarded", computed(did) == 0)
+    ev = [e for e in mock_events() if e.get("verdict") != "control"]
+    check("pull.retry_after_503", ev and ev[0].get("verdict") == "simulated_503" and ev[0].get("pull")
+          and any(e.get("verdict") == "pull" for e in ev[1:]), [e.get("verdict") for e in ev[:3]])
+    check("pull.hmac_all_valid", not any(e.get("verdict", "").startswith(("bad_", "pull_4")) for e in ev), [e.get("verdict") for e in ev])
+    s.cmd("crvotes status")
+    check("pull.status_cmd", s.wait(r"Способ в кабинете: «Наш плагин»", 30)
+          and s.wait(r"Голосов CraftRadar с запуска: 1, ждут подтверждения сайтом: 0", 10), s.text()[-400:])
+    rc = s.stop()
+    no_linkage_errors(s.text(), "pull")
+    check("pull.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
+
+    # рестарт: сайт выдаёт тот же id снова (потерянный ack) + новый голос
+    mock_ctl({"votes": [vote, {"id": vid2, "username": "Erin"}]})
+    t0 = time.time()
+    s = Server("3-pull-restart")
+    check("pull_restart.server_done", s.wait(r"Done \(", 300))
+    check("pull_restart.new_vote_acked", acked(vid2, t0))
+    check("pull_restart.dup_acked_again", acked(vid, t0) and mock_ctl()["pending"] == [], mock_ctl())
+    check("pull_restart.no_duplicate_reward", computed(vid) == 1 and computed(vid2) == 1, read(rl)[-400:])
+    rc = s.stop()
+    no_linkage_errors(s.text(), "pull_restart")
+    check("pull_restart.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
+
+    # потеря pull-state.json: дубль отсекает дедуп наград по crdv1:<id>
+    os.remove(ps)
+    mock_ctl({"votes": [vote]})
+    t0 = time.time()
+    s = Server("4-pull-lost-state")
+    check("pull_lost_state.server_done", s.wait(r"Done \(", 300))
+    check("pull_lost_state.dup_acked", acked(vid, t0) and mock_ctl()["pending"] == [], mock_ctl())
+    check("pull_lost_state.duplicate_rejected", computed(vid) == 1 and wait_text(rl, rf"REJECTED_DUPLICATE\tcrdv1:{vid}\t", 30), read(rl)[-400:])
+    rc = s.stop()
+    no_linkage_errors(s.text(), "pull_lost_state")
+    check("pull_lost_state.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
+
+
+def main():
     shutil.copy(os.path.join(a.cache, f"paper-{a.version}.jar"), os.path.join(srv, "paper.jar"))
     write(os.path.join(srv, "eula.txt"), "eula=true\n")
     write(os.path.join(srv, "server.properties"),
           f"online-mode=false\nserver-port={MC}\nserver-ip=127.0.0.1\nspawn-protection=0\nmax-players=5\nview-distance=3\n"
           "simulation-distance=3\nspawn-monsters=false\nspawn-animals=false\nspawn-npcs=false\ngenerate-structures=false\nenable-query=false\nenable-rcon=false\n")
-    if not a.no_votifier:
+    if not (a.no_votifier or a.pull):
         vj = "votifier-1.9.jar" if a.classic_votifier else "nuvotifier-2.7.3.jar"
         shutil.copy(os.path.join(a.cache, vj), os.path.join(srv, "plugins", vj))
     first_jar = a.upgrade_from or a.jar
@@ -232,7 +313,7 @@ def main():
     check("start1.server_done", up, a.version)
     t = s.text()
     check("start1.plugin_enabled", re.search(r"Enabling CraftRadarVotes v", t), re.search(r"Enabling CraftRadarVotes v\S+", t).group(0) if re.search(r"Enabling CraftRadarVotes v\S+", t) else "")
-    if a.no_votifier:
+    if a.no_votifier or a.pull:
         check("start1.no_votifier_info_once", t.count("NuVotifier не установлен — это нормально") == 1, t.count("NuVotifier не установлен"))
     else:
         check("start1.votifier_found_once", t.count("NuVotifier найден: голоса других мониторингов") == 1)
@@ -246,13 +327,13 @@ def main():
     check("start1.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
     if a.no_votifier or not up:
         return
+    if a.pull:
+        return pull_flow()
 
     # 2. настройка и второй старт с моком (первый запрос мока -> 503)
     plugin_config()
     votifier_config()
-    mock = subprocess.Popen([sys.executable, "-I", os.path.join(HERE, "mock_craftradar.py"), "--port", str(HTTP), "--key", KEY,
-                             "--secret", SECRET, "--log", os.path.join(wd, "mock.jsonl"), "--fail-first", "1",
-                             "--down", os.path.join(wd, "down.flag")], start_new_session=True)
+    start_mock(1)
     s = Server("2-votes")
     check("start2.server_done", s.wait(r"Done \(", 300))
     t = s.text()
@@ -341,7 +422,7 @@ finally:
         if sv.p.poll() is None:
             os.killpg(sv.p.pid, signal.SIGKILL)
     res = {"version": a.version, "java": a.java, "jar": os.path.basename(a.jar), "upgrade_from": a.upgrade_from,
-           "no_votifier": a.no_votifier, "passed": all(c["ok"] for c in checks) and bool(checks), "checks": checks}
+           "no_votifier": a.no_votifier, "pull": a.pull, "passed": all(c["ok"] for c in checks) and bool(checks), "checks": checks}
     write(os.path.join(wd, "result.json"), json.dumps(res, ensure_ascii=False, indent=1))
     print("RESULT", name, "PASS" if res["passed"] else "FAIL", f"{sum(c['ok'] for c in checks)}/{len(checks)}")
     sys.exit(0 if res["passed"] else 1)
