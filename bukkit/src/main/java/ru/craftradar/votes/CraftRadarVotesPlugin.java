@@ -246,7 +246,7 @@ public final class CraftRadarVotesPlugin extends JavaPlugin {
         }
         pm.registerEvents(new VotifierListener(this), this);   // порт NuVotifier не трогаем, событие только читаем
         registered = true;
-        getLogger().info("NuVotifier найден: голоса других мониторингов пересылаются в статистику CraftRadar; награды за них — " + votifierRewardsWhy + ".");
+        getLogger().info("NuVotifier найден: голоса других мониторингов пересылаются в статистику CraftRadar и здесь " + votifierRewardsWhy + ".");
     }
 
     private void load() {
@@ -276,7 +276,6 @@ public final class CraftRadarVotesPlugin extends JavaPlugin {
             }
             try {
                 if (queue == null) queue = new DiskQueue(getDataFolder().toPath());
-                registerListener();
                 VoteForwarder f = new VoteForwarder(s, queue, getLogger(), System::currentTimeMillis);
                 f.start();
                 fwd = f;
@@ -385,7 +384,7 @@ public final class CraftRadarVotesPlugin extends JavaPlugin {
             out.add("Голосов CraftRadar с запуска: " + p.received() + ", ждут подтверждения сайтом: " + p.pendingAcks());
             if (p.lastError() != null) out.add("Ошибка опроса: " + p.lastError());
         }
-        out.add("NuVotifier: " + (registered ? "найден; награды за его голоса " + votifierRewardsWhy : "не установлен (не обязателен; нужен только для голосов других мониторингов)"));
+        out.add("NuVotifier: " + (registered ? "найден; его голоса " + votifierRewardsWhy : "не установлен (не обязателен; нужен только для голосов других мониторингов)"));
         out.add("Награды: " + (rewardsSettings.enabled() ? "включены" + (rewardsSettings.dryRun() ? " (dry-run)" : "") : "выключены (rewards.enabled: false)") + " — подробно: /crvotes rewards status");
         if (f != null) {
             out.add("Очередь статистики: " + f.queueSize() + ", в rejected/: " + f.rejectedCount() + " (макс. " + DiskQueue.REJECTED_CAP + ")");

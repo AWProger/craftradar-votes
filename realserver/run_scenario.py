@@ -233,13 +233,14 @@ def main():
     t = s.text()
     check("start1.plugin_enabled", re.search(r"Enabling CraftRadarVotes v", t), re.search(r"Enabling CraftRadarVotes v\S+", t).group(0) if re.search(r"Enabling CraftRadarVotes v\S+", t) else "")
     if a.no_votifier:
-        check("start1.no_votifier_warning", "NuVotifier/Votifier не найден" in t)
+        check("start1.no_votifier_info_once", t.count("NuVotifier не установлен — это нормально") == 1, t.count("NuVotifier не установлен"))
     else:
+        check("start1.votifier_found_once", t.count("NuVotifier найден: голоса других мониторингов") == 1)
         check("start1.empty_key_error", "key_id пуст" in t)
     check("start1.config_created", os.path.exists(os.path.join(srv, "plugins", "CraftRadarVotes", "config.yml")))
     s.cmd("crvotes status")
-    s.wait(r"мост выключен или не настроен", 30)
-    check("start1.status_cmd", "мост выключен или не настроен" in s.text())
+    s.wait(r"Связь с CraftRadar: выключена или не настроена", 30)
+    check("start1.status_cmd", "Связь с CraftRadar: выключена или не настроена" in s.text())
     rc = s.stop()
     no_linkage_errors(s.text(), "start1")
     check("start1.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
@@ -255,7 +256,7 @@ def main():
     s = Server("2-votes")
     check("start2.server_done", s.wait(r"Done \(", 300))
     t = s.text()
-    check("start2.bridge_ready", re.search(r"Готово: http://127\.0\.0\.1:\d+/api/vote_ingest\.php", t))
+    check("start2.bridge_ready", re.search(r"Готово: ключ \S+, сайт http://127\.0\.0\.1:\d+", t))
     check("start2.rewards_enabled", "Награды включены" in t)
     now = int(time.time() * 1000)
     corr = "0123456789abcdef"
@@ -288,7 +289,7 @@ def main():
         time.sleep(1)
     check("rewards.duplicate_rejected", "REJECTED_DUPLICATE" in read(rl))
     s.cmd("crvotes status")
-    check("cmd.status", s.wait(r"Очередь: 0, в rejected/: 0", 30))
+    check("cmd.status", s.wait(r"Очередь статистики: 0, в rejected/: 0", 30))
     s.cmd("crvotes rewards status")
     check("cmd.rewards_status", s.wait(r"(?i)награды", 30))
     # 3. недоступность сайта: голос остаётся в очереди на диске и переживает рестарт
