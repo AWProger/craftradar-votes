@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 — 2026-11-02
+
+* **Способ «Наш плагин»: NuVotifier больше не нужен.** Плагин сам забирает голоса CraftRadar по HTTPS (`POST /api/vote_pull.php`, тот же ключ и HMAC, PROTOCOL.md §10) раз в `pull.interval_sec` (5 с) и подтверждает обработанные id: доставка «хотя бы один раз», дедуп по id (`pull-state.json`), ключ наград `crdv1:<id>`. Порт, RSA-ключ и токен не нужны. Протокол: добавлен поток C, потоки A/B не менялись.
+* NuVotifier стал необязательным: весь код Votifier вынесен в `VotifierListener`, который регистрируется, только если NuVotifier/Votifier включён. Событие только читается (MONITOR), порт не занимается.
+* `rewards.handle_votifier_votes: auto|true|false` (по умолчанию `auto`): голоса из NuVotifier не награждаются, если стоит VotingPlugin/SuperbVote/GAListener/VoteRoulette (строка в консоли при старте).
+* Событие `ru.craftradar.votes.api.CraftRadarVoteEvent` (отменяемое) для других плагинов.
+* Плейсхолдер `{service}` в `message`/`broadcast` (в командах — по-прежнему только `{player}`).
+* `/crvotes status` и сообщения консоли переписаны по-русски: способ в кабинете, последний опрос, NuVotifier, награды.
+* «Проверить подключение» в кабинете работает и в способе «Наш плагин» (проверка приходит в ответе опроса, подтверждение — `diagnostic_ack`).
+
 ## 1.2.0 — 2026-10-25
 
 * Модуль `skins` (по умолчанию выключен): скин CraftRadar по нику через SkinsRestorer 15.x (официальное API, MineSkin самого SR). Скин, выбранный в SR вручную, не трогается; без SkinsRestorer модуль спит. `softdepend` += `SkinsRestorer`; в `/crvotes status` — строка «Скины». Протокол голосов не менялся.
