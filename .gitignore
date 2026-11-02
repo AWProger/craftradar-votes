@@ -32,3 +32,4 @@ Thumbs.db
 # Секреты на всякий случай
 config.local.yml
 *.env
+__pycache__/
