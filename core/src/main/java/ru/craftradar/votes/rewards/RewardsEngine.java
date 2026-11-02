@@ -79,7 +79,7 @@ public final class RewardsEngine {
             return reject(RewardStatus.LIMIT_REACHED, key, player, "суточный лимит наград");
         }
 
-        List<Action> actions = compute(key, player, streak);
+        List<Action> actions = compute(key, player, streak, vote.service());
         log(RewardStatus.COMPUTED, key, player, "действий=" + actions.size() + ", серия=" + streak);
         if (dry) {
             log(RewardStatus.DRY_RUN, key, player, "выдал бы: " + describe(actions));
@@ -110,7 +110,7 @@ public final class RewardsEngine {
             return reject(RewardStatus.REJECTED_PLAYER, key, "-", "недопустимый ник");
         }
         if (!gateway.isOnline(player)) return reject(RewardStatus.SKIPPED_OFFLINE, key, player, "игрок не в сети");
-        List<Action> actions = compute(key, player, 0);
+        List<Action> actions = compute(key, player, 0, "CraftRadar");
         if (settings.dryRun()) {
             log(RewardStatus.DRY_RUN, key, player, "выдал бы: " + describe(actions));
             return result(RewardStatus.DRY_RUN, key, describe(actions));
@@ -283,7 +283,7 @@ public final class RewardsEngine {
     }
 
     /** default + ровно одна запись пула + все сработавшие милестоуны (§3). */
-    private List<Action> compute(String key, String player, int streak) {
+    private List<Action> compute(String key, String player, int streak, String service) {
         List<RewardsSettings.RewardBlock> blocks = new ArrayList<>();
         blocks.add(settings.defaults());
         RewardsSettings.WeightedPool pool = settings.weightedPool();
@@ -299,8 +299,8 @@ public final class RewardsEngine {
             for (String c : b.commands()) out.add(Action.command(id(key, out), player, PlaceholderGuard.substitute(c, player)));
             for (RewardsSettings.ItemSpec i : b.items()) out.add(Action.item(id(key, out), player, i.material(), i.amount()));
             if (b.money() > 0) out.add(Action.money(id(key, out), player, b.money()));
-            if (!b.message().isEmpty()) out.add(Action.message(id(key, out), player, PlaceholderGuard.substitute(b.message(), player)));
-            if (!b.broadcast().isEmpty()) out.add(Action.broadcast(id(key, out), player, PlaceholderGuard.substitute(b.broadcast(), player)));
+            if (!b.message().isEmpty()) out.add(Action.message(id(key, out), player, PlaceholderGuard.substitute(PlaceholderGuard.substituteService(b.message(), service), player)));
+            if (!b.broadcast().isEmpty()) out.add(Action.broadcast(id(key, out), player, PlaceholderGuard.substitute(PlaceholderGuard.substituteService(b.broadcast(), service), player)));
         }
         return out;
     }

@@ -10,12 +10,23 @@ public final class Settings {
     private final boolean enabled, allowInsecureHttp;
     private final String apiUrl, keyId, secret, logLevel;
     private final int maxQueueSize;
+    private final boolean pullEnabled;
+    private final int pullIntervalSec;
 
     public Settings(boolean enabled, String apiUrl, String keyId, String secret,
                     boolean allowInsecureHttp, int maxQueueSize, String logLevel) {
+        this(enabled, apiUrl, keyId, secret, allowInsecureHttp, maxQueueSize, logLevel, true, 5);
+    }
+
+    /** pullEnabled/pullIntervalSec — поток C (PROTOCOL §10): забирать голоса CraftRadar с сайта. */
+    public Settings(boolean enabled, String apiUrl, String keyId, String secret,
+                    boolean allowInsecureHttp, int maxQueueSize, String logLevel, boolean pullEnabled, int pullIntervalSec) {
         this.enabled = enabled; this.apiUrl = apiUrl; this.keyId = keyId; this.secret = secret;
         this.allowInsecureHttp = allowInsecureHttp; this.maxQueueSize = maxQueueSize; this.logLevel = logLevel;
+        this.pullEnabled = pullEnabled; this.pullIntervalSec = pullIntervalSec;
     }
+    public boolean pullEnabled() { return pullEnabled; }
+    public int pullIntervalSec() { return pullIntervalSec; }
     public boolean enabled() { return enabled; }
     public String apiUrl() { return apiUrl; }
     public String keyId() { return keyId; }
@@ -35,9 +46,9 @@ public final class Settings {
 
     public List<String> validate() {
         List<String> e = new ArrayList<>();
-        if (keyId == null || J8.blank(keyId)) e.add("key_id пуст — получите его на https://craftradar.ru/dashboard/voting.php");
+        if (keyId == null || J8.blank(keyId)) e.add("key_id пуст — получите его в кабинете CraftRadar: «Голосования» сервера → «Выдать ключ»");
         else if (!KEY_ID.matcher(keyId).matches()) e.add("key_id содержит недопустимые символы или длину (нужно [A-Za-z0-9_-], 4..24): проверьте, что скопировали без пробелов и кавычек");
-        if (secret == null || J8.blank(secret)) e.add("secret пуст — получите его на https://craftradar.ru/dashboard/voting.php");
+        if (secret == null || J8.blank(secret)) e.add("secret пуст — он показывается один раз при выдаче ключа в кабинете CraftRadar (потеряли — перевыпустите ключ)");
         else if (edgeSpace(secret) || secret.chars().anyMatch(Character::isISOControl))
             e.add("secret содержит пробелы по краям или управляющие символы: скопируйте его заново");
         try {
@@ -53,6 +64,7 @@ public final class Settings {
             e.add("api_url некорректен: '" + apiUrl + "'");
         }
         if (maxQueueSize < 1) e.add("max_queue_size должен быть >= 1");
+        if (pullIntervalSec < 2 || pullIntervalSec > 60) e.add("pull.interval_sec должен быть от 2 до 60 секунд");
         return e;
     }
 
@@ -74,6 +86,9 @@ public final class Settings {
     }
 
     public URI endpoint() { return URI.create(baseUrl() + SUFFIX); }
+
+    /** {api_url}/api/vote_pull.php (поток C). */
+    public URI pullEndpoint() { return URI.create(baseUrl() + "/api/vote_pull.php"); }
 
     @Override public String toString() {
         return "Settings[enabled=" + enabled + ", apiUrl=" + apiUrl + ", keyId=" + keyId + ", secret=***]";

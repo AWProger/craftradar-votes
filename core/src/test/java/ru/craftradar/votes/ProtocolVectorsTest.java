@@ -28,6 +28,6 @@ class ProtocolVectorsTest {
             assertEquals(v.get("signature").getAsString(), got, v.get("name").getAsString());
             n++;
         }
-        assertEquals(5, n, "число векторов изменилось — обновите и тест сайта");
+        assertEquals(6, n, "число векторов изменилось — обновите и тест сайта");
     }
 }

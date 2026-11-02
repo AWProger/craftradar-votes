@@ -91,13 +91,18 @@ public final class ConfigValidator {
             String s = (String) o;
             if (s.length() > MAX_TEXT) { err(p, "длина " + s.length() + " больше " + MAX_TEXT); return ""; }
             if (PlaceholderGuard.hasLineBreakOrControl(s)) { err(p, "перевод строки и управляющие символы запрещены"); return ""; }
-            placeholders(s, p);
+            placeholders(s, p, true);
             return s;
         }
 
-        void placeholders(String s, String p) {
+        /** {player} везде; {service} — только в message/broadcast (в команды данные голоса не попадают). */
+        void placeholders(String s, String p, boolean text) {
             Matcher mt = PLACEHOLDER.matcher(s);
-            while (mt.find()) if (!mt.group().equals("{player}")) err(p, "неизвестный плейсхолдер " + mt.group() + " (разрешён только {player})");
+            while (mt.find()) {
+                String g = mt.group();
+                if (g.equals("{player}") || (text && g.equals(PlaceholderGuard.SERVICE))) continue;
+                err(p, "неизвестный плейсхолдер " + g + (text ? " (разрешены {player} и {service})" : " (в командах разрешён только {player})"));
+            }
         }
 
         List<String> commands(Map<?, ?> m, String path) {
@@ -115,7 +120,7 @@ public final class ConfigValidator {
                 if (c.length() > MAX_TEXT) { err(ip, "длина " + c.length() + " больше " + MAX_TEXT); continue; }
                 if (PlaceholderGuard.hasLineBreakOrControl(c)) { err(ip, "перевод строки и управляющие символы в команде запрещены"); continue; }
                 if (c.startsWith("/")) { err(ip, "команда не должна начинаться с '/'"); continue; }
-                placeholders(c, ip);
+                placeholders(c, ip, false);
                 out.add(c);
             }
             return out;

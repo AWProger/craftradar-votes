@@ -10,6 +10,9 @@ public final class PlaceholderGuard {
     private static final Pattern NAME = Pattern.compile("^[A-Za-z0-9_.]{1,16}$");
     private static final Pattern BRACES = Pattern.compile("\\{[^{}]*\\}");
     private static final String PLAYER = "{player}";
+    /** Имя мониторинга; только в message/broadcast и только безопасные символы (иначе «мониторинг»). */
+    public static final String SERVICE = "{service}";
+    private static final Pattern SAFE_SERVICE = Pattern.compile("^[A-Za-zА-Яа-яЁё0-9 ._-]{1,32}$");
 
     private PlaceholderGuard() {}
 
@@ -32,6 +35,12 @@ public final class PlaceholderGuard {
     public static String substitute(String template, String player) {
         if (!validPlayerName(player)) throw new IllegalArgumentException("недопустимый ник");
         return template.replace(PLAYER, player);
+    }
+
+    /** Подставить {service} в текст сообщения: имя мониторинга только из безопасных символов, иначе «мониторинг». */
+    public static String substituteService(String template, String service) {
+        String s = service == null ? "" : service.trim();
+        return template.replace(SERVICE, SAFE_SERVICE.matcher(s).matches() ? s : "мониторинг");
     }
 
     /** Есть ли управляющие символы и разделители строк (в т.ч. \n, \r, NUL, U+0085, U+2028/2029). */
