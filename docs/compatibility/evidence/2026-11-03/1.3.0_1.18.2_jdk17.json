@@ -1,0 +1,191 @@
+{
+ "version": "1.18.2",
+ "java": "/home/claude/.cache/crv-realserver/jdk17/bin/java",
+ "jar": "craftradar-votes-1.3.0.jar",
+ "upgrade_from": "",
+ "no_votifier": false,
+ "pull": false,
+ "passed": true,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "1.18.2"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": true,
+   "detail": "Enabling CraftRadarVotes v1.3.0"
+  },
+  {
+   "id": "start1.votifier_found_once",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.empty_key_error",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.config_created",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "start2.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start2.bridge_ready",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start2.rewards_enabled",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "vote.v2_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 6fek2o6t0ck56gp33reo1ga5rb\nv2 response: {\"status\":\"ok\"}"
+  },
+  {
+   "id": "vote.v1_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 lil97jv0lpr1i3k7ei6hbcf2ac\nv1 sent"
+  },
+  {
+   "id": "vote.v2_delivered_with_correlation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "vote.v1_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "transport.retry_after_503",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "transport.hmac_all_valid",
+   "ok": true,
+   "detail": "['simulated_503', 'pull', 'accepted', 'accepted', 'pull']"
+  },
+  {
+   "id": "diag.ack_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "rewards.offline_queued",
+   "ok": true,
+   "detail": "048681cd3c8d50a202c698a77ca9c6b800159aa\tBob\tсервис=TestList\n2026-11-03T05:45:15.038Z\tCOMPUTED\t8d694dd6b2e0a8e71b5beb18f048681cd3c8d50a202c698a77ca9c6b800159aa\tBob\tдействий=3, серия=0\n2026-11-03T05:45:15.038Z\tQUEUED\t8d694dd6b2e0a8e71b5beb18f048681cd3c8d50a202c698a77ca9c6b800159aa\tbob\tигрок не в сети\n"
+  },
+  {
+   "id": "rewards.diag_not_rewarded",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "rewards.duplicate_rejected",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "cmd.status",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "cmd.rewards_status",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "outage.vote_sent",
+   "ok": true,
+   "detail": "greeting: VOTIFIER 2 l8bnbqrv319a4ocllkmsjd1q4e\nv2 response: {\"status\":\"ok\"}"
+  },
+  {
+   "id": "outage.simulated_503_seen",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "outage.queued_on_disk",
+   "ok": true,
+   "detail": "['2a7af9e390f3da3444d7c9e5c1160600af0b1ed43bc90e7d59469081cdd906bc.json']"
+  },
+  {
+   "id": "start2.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start2.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "start3.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.queue_restored",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.queued_vote_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.config_unchanged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.rewards_state_kept",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.dedupe_survives_restart",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start3.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start3.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  }
+ ]
+}

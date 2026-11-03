@@ -369,8 +369,13 @@ def main():
     while time.time() < deadline and "REJECTED_DUPLICATE" not in read(rl):
         time.sleep(1)
     check("rewards.duplicate_rejected", "REJECTED_DUPLICATE" in read(rl))
-    s.cmd("crvotes status")
-    check("cmd.status", s.wait(r"Очередь статистики: 0, в rejected/: 0", 30))
+    st_ok = False   # под нагрузкой последняя отправка может быть ещё в полёте: повторяем status до 30 с
+    for _ in range(6):
+        s.cmd("crvotes status")
+        if s.wait(r"Очередь статистики: 0, в rejected/: 0", 5):
+            st_ok = True
+            break
+    check("cmd.status", st_ok)
     s.cmd("crvotes rewards status")
     check("cmd.rewards_status", s.wait(r"(?i)награды", 30))
     # 3. недоступность сайта: голос остаётся в очереди на диске и переживает рестарт
@@ -394,7 +399,7 @@ def main():
     os.remove(os.path.join(wd, "down.flag"))
     s = Server("3-restart")
     check("start3.server_done", s.wait(r"Done \(", 300))
-    check("start3.queue_restored", re.search(r"в очереди с прошлого запуска: 1", s.text()))
+    check("start3.queue_restored", re.search(r"[Вв] очереди (статистики )?с прошлого запуска: 1", s.text()))
     check("start3.queued_vote_delivered", wait_mock(accepted("Carol"), 120))
     check("start3.config_unchanged", read(os.path.join(srv, "plugins", "CraftRadarVotes", "config.yml")) == cfg_before)
     st = read(os.path.join(srv, "plugins", "CraftRadarVotes", "rewards-state.json"))
