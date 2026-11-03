@@ -17,3 +17,11 @@
 1.7.10   jdk8   --no-bot --classic-votifier
 1.8.8    jdk8   --classic-votifier
 26.2     jdk25  --no-bot
+1.12.2   jdk8   --pull
+1.16.5   jdk8   --pull
+1.18.2   jdk17
+1.18.2   jdk17  --pull
+1.20.4   jdk17  --pull
+1.21.4   jdk21
+1.21.4   jdk21  --pull
+1.7.10   jdk8   --no-bot --pull
