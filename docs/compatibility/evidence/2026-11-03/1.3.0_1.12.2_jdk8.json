@@ -5,7 +5,7 @@
  "upgrade_from": "",
  "no_votifier": false,
  "pull": false,
- "passed": false,
+ "passed": true,
  "checks": [
   {
    "id": "start1.server_done",
@@ -65,12 +65,12 @@
   {
    "id": "vote.v2_sent",
    "ok": true,
-   "detail": "greeting: VOTIFIER 2 5rf1jq3gnnjqbepo6efm8me66d\nv2 response: {\"status\":\"ok\"}"
+   "detail": "greeting: VOTIFIER 2 dtgepp6l8jtp4djdd5q2qhpvqp\nv2 response: {\"status\":\"ok\"}"
   },
   {
    "id": "vote.v1_sent",
    "ok": true,
-   "detail": "greeting: VOTIFIER 2 m20gc80itkgqstqt5s7gctni97\nv1 sent"
+   "detail": "greeting: VOTIFIER 2 qns73imv8pc0mfgev40jbvc1an\nv1 sent"
   },
   {
    "id": "vote.v2_delivered_with_correlation",
@@ -100,7 +100,7 @@
   {
    "id": "rewards.offline_queued",
    "ok": true,
-   "detail": "bec1dd3dcd58cc6334b5da1fb98d6a1274f0a1a\tBob\tсервис=TestList\n2026-11-03T05:02:16.500Z\tCOMPUTED\tb006120a83286971a93698509bec1dd3dcd58cc6334b5da1fb98d6a1274f0a1a\tBob\tдействий=3, серия=0\n2026-11-03T05:02:16.513Z\tQUEUED\tb006120a83286971a93698509bec1dd3dcd58cc6334b5da1fb98d6a1274f0a1a\tbob\tигрок не в сети\n"
+   "detail": "1d35f2c58f288024af35ea5862da4b5c2a621e8\tBob\tсервис=TestList\n2026-11-03T06:14:33.229Z\tCOMPUTED\teee207d8fdc3dee15f9166abc1d35f2c58f288024af35ea5862da4b5c2a621e8\tBob\tдействий=3, серия=0\n2026-11-03T06:14:33.229Z\tQUEUED\teee207d8fdc3dee15f9166abc1d35f2c58f288024af35ea5862da4b5c2a621e8\tbob\tигрок не в сети\n"
   },
   {
    "id": "rewards.diag_not_rewarded",
@@ -125,7 +125,7 @@
   {
    "id": "outage.vote_sent",
    "ok": true,
-   "detail": "greeting: VOTIFIER 2 q35hrq8qo6q6ea6lsuu0drcaet\nv2 response: {\"status\":\"ok\"}"
+   "detail": "greeting: VOTIFIER 2 4ppabrgm8tvigb41j10q93irs2\nv2 response: {\"status\":\"ok\"}"
   },
   {
    "id": "outage.simulated_503_seen",
@@ -135,7 +135,7 @@
   {
    "id": "outage.queued_on_disk",
    "ok": true,
-   "detail": "['5db615a3729a7b6f8427e679f45ed290be3ce86912f3bb0c9d74683fabc9e487.json']"
+   "detail": "['3d35d95f97c346dc0f8c81a90e2db53f816026aec22b514f58e51e5ff44747f1.json']"
   },
   {
    "id": "start2.no_linkage_or_plugin_errors",
@@ -154,7 +154,7 @@
   },
   {
    "id": "start3.queue_restored",
-   "ok": false,
+   "ok": true,
    "detail": ""
   },
   {

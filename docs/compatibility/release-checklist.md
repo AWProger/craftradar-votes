@@ -4,7 +4,7 @@
 - [ ] `./gradlew clean build` — все тесты зелёные, `verifyJar OK`.
 - [ ] Вторая сборка с нуля даёт тот же SHA-256 (`bukkit/build/libs/SHA256SUMS`).
 - [ ] CI `compile-matrix` зелёный по всем API.
-- [ ] Real-server матрица (`realserver/matrix.sh`) по всем строкам `matrix.txt` — PASS; результаты перенесены в `docs/compatibility/minecraft-matrix.md`.
+- [ ] Real-server: для обычного релиза достаточно Paper 1.8.8 (Java 8) и самой новой 1.21.x (Java 21) — оба режима (NuVotifier и `--pull`), решение владельца 2026-11-03. Полная матрица (`realserver/matrix.sh` по всем строкам `matrix.txt`) — только при изменении используемого Bukkit/Votifier API, минимальной Java или `api-version`. Результаты — в `docs/compatibility/minecraft-matrix.md`.
 - [ ] Апгрейд с прошлой версии: `run_scenario.py --upgrade-from <старый.jar>` — PASS (конфиг не изменён, очередь и дедуп пережили смену jar).
 - [ ] Способ «Наш плагин»: `run_scenario.py --pull` (строки `--pull` в `matrix.txt`) — PASS (голос из `vote_pull` награждён один раз и подтверждён, после рестарта дубля нет).
 - [ ] В jar нет секретов: `config.yml` с пустыми `key_id`/`secret`, `api_url` = `https://craftradar.ru` (проверяет `verifyJar`).

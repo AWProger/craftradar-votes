@@ -5,7 +5,7 @@
  "upgrade_from": "",
  "no_votifier": false,
  "pull": false,
- "passed": false,
+ "passed": true,
  "checks": [
   {
    "id": "start1.server_done",
@@ -65,12 +65,12 @@
   {
    "id": "vote.v2_sent",
    "ok": true,
-   "detail": "greeting: VOTIFIER 2 5kkej5du9lkm2hdpqmguscvrjc\nv2 response: {\"status\":\"ok\"}"
+   "detail": "greeting: VOTIFIER 2 qu3mq8of4fglqhgbgb7b55is5m\nv2 response: {\"status\":\"ok\"}"
   },
   {
    "id": "vote.v1_sent",
    "ok": true,
-   "detail": "greeting: VOTIFIER 2 q81s25nvdk60p0gpi6o42o5k9b\nv1 sent"
+   "detail": "greeting: VOTIFIER 2 i7hip5s59ttt8h399h3mteh2k4\nv1 sent"
   },
   {
    "id": "vote.v2_delivered_with_correlation",
@@ -90,7 +90,7 @@
   {
    "id": "transport.hmac_all_valid",
    "ok": true,
-   "detail": "['simulated_503', 'pull', 'accepted', 'pull', 'pull', 'accepted']"
+   "detail": "['simulated_503', 'pull', 'accepted', 'pull', 'accepted']"
   },
   {
    "id": "diag.ack_delivered",
@@ -100,7 +100,7 @@
   {
    "id": "rewards.offline_queued",
    "ok": true,
-   "detail": "d8705b92414ef5e7d23b9249bc09891a7046836\tBob\tсервис=TestList\n2026-11-03T05:55:06.198Z\tCOMPUTED\t86fb3c54f4fd3cf377449163fd8705b92414ef5e7d23b9249bc09891a7046836\tBob\tдействий=3, серия=0\n2026-11-03T05:55:06.199Z\tQUEUED\t86fb3c54f4fd3cf377449163fd8705b92414ef5e7d23b9249bc09891a7046836\tbob\tигрок не в сети\n"
+   "detail": "8a4f55efaa6f0848cbd6ef3d45afb293076cb69\tBob\tсервис=TestList\n2026-11-03T06:17:33.211Z\tCOMPUTED\t2af4e8acab7666e55cf953f348a4f55efaa6f0848cbd6ef3d45afb293076cb69\tBob\tдействий=3, серия=0\n2026-11-03T06:17:33.211Z\tQUEUED\t2af4e8acab7666e55cf953f348a4f55efaa6f0848cbd6ef3d45afb293076cb69\tbob\tигрок не в сети\n"
   },
   {
    "id": "rewards.diag_not_rewarded",
@@ -114,7 +114,7 @@
   },
   {
    "id": "cmd.status",
-   "ok": false,
+   "ok": true,
    "detail": ""
   },
   {
@@ -125,7 +125,7 @@
   {
    "id": "outage.vote_sent",
    "ok": true,
-   "detail": "greeting: VOTIFIER 2 oge9l24cu98h68dmgo31le5gdb\nv2 response: {\"status\":\"ok\"}"
+   "detail": "greeting: VOTIFIER 2 463q7kstkbc8ba7uhrah793bnv\nv2 response: {\"status\":\"ok\"}"
   },
   {
    "id": "outage.simulated_503_seen",
@@ -135,7 +135,7 @@
   {
    "id": "outage.queued_on_disk",
    "ok": true,
-   "detail": "['9099092bf00d89bc41c7d6c6a7cfd62e0f7b49d1af2115d491df7a66b39261e9.json']"
+   "detail": "['7e9bbfee7bf897bb74386f09cb583ca5014134b0e9202acf99303cd02a1374e7.json']"
   },
   {
    "id": "start2.no_linkage_or_plugin_errors",
