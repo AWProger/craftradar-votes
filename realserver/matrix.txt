@@ -24,3 +24,5 @@
 1.20.4   jdk17  --pull
 1.21.4   jdk21
 1.21.4   jdk21  --pull
+1.8.8    jdk8   --pull --network
+1.21.11  jdk21  --pull --network

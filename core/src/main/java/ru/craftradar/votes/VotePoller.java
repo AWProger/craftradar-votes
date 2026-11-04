@@ -26,6 +26,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -71,10 +72,53 @@ public final class VotePoller {
     private int failures;
     private volatile String mode = null, lastError = null;
     private volatile long lastOkAt = 0, received = 0;
+    // режим сети (один ключ на несколько серверов): network(...) из плагина
+    static final String INSTANCE_FILE = "instance-id";
+    static final long NO_RELEASE_RECHECK_MS = 3600_000;
+    private volatile String instance = null, userAgent = null;
+    private volatile Predicate<String> online = null;
+    private final Set<String> pendingRelease = new LinkedHashSet<>();   // игрока здесь нет — вернуть голос сайту следующим запросом
+    private final Map<String, Long> firstSeen = new LinkedHashMap<>();  // голос без timestamp: отсчёт offline_fallback_min отсюда
+    private long noReleaseUntil = 0;                                      // сайт не умеет release (до qa_165): до этого момента — как any
+    private volatile long releasedTotal = 0;
 
     public VotePoller(Settings cfg, Path dataDir, Logger log, LongSupplier clock, Sink sink, DiagSink diag) {
         this.cfg = cfg; this.stateFile = dataDir.resolve(STATE_FILE); this.log = log; this.clock = clock; this.sink = sink; this.diag = diag;
         load();
+    }
+
+    /** X-CR-Instance, User-Agent и «игрок на этом сервере?» (null — как network.reward_where: any). */
+    public void network(String instance, String userAgent, Predicate<String> online) {
+        this.instance = instance; this.userAgent = userAgent; this.online = online;
+    }
+
+    /**
+     * User-Agent «CraftRadarVotes/1.4.0 (Paper 1.21.11; Лобби)» — сайт показывает имя и версию в «Подключённых серверах».
+     * Заголовок HTTP — только ASCII: не-ASCII и % в имени кодируются %XX (UTF-8), цветовые коды §x/&x, ; ( ) и управляющие убираются.
+     */
+    public static String userAgent(String version, String core, String name) {
+        String n = (name == null ? "" : name).replaceAll("[§&][0-9A-Fa-fK-Ok-oRrXx]", "").replaceAll("[\\p{Cntrl};()]", " ").replaceAll("\\s+", " ").trim();
+        if (n.codePointCount(0, n.length()) > 40) n = n.substring(0, n.offsetByCodePoints(0, 40)).trim();
+        StringBuilder sb = new StringBuilder();
+        for (byte x : n.getBytes(StandardCharsets.UTF_8)) {
+            int c = x & 0xff;
+            if (c >= 0x80 || c == '%') sb.append('%').append(String.format("%02X", c)); else sb.append((char) c);
+        }
+        String k = (core == null ? "" : core).replaceAll("[^\\x20-\\x7E]|[;()]", "").trim();
+        return "CraftRadarVotes/" + version + " (" + k + (sb.length() > 0 ? "; " + sb : "") + ")";
+    }
+
+    /** Постоянный случайный id экземпляра (файл instance-id в папке плагина). Скопировали папку сервера — удалите файл. */
+    public static String instanceId(Path dataDir) throws IOException {
+        Path f = dataDir.resolve(INSTANCE_FILE);
+        if (Files.exists(f)) {
+            String s = J8.readString(f).trim();
+            if (s.matches("^[A-Za-z0-9_.:-]{8,64}$")) return s;
+        }
+        String id = "crv-" + java.util.UUID.randomUUID().toString().replace("-", "");
+        Files.createDirectories(dataDir);
+        J8.writeString(f, id + "\n");
+        return id;
     }
 
     public void start() {
@@ -109,10 +153,13 @@ public final class VotePoller {
     public synchronized long pollOnce() {
         List<String> ack = new ArrayList<>();
         for (String id : pendingAck) { if (ack.size() >= MAX_ACK) break; ack.add(id); }
+        List<String> rel = new ArrayList<>();
+        for (String id : pendingRelease) { if (rel.size() >= MAX_ACK) break; rel.add(id); }
         JsonObject req = new JsonObject();
         JsonArray a = new JsonArray();
         for (String id : ack) a.add(id);
         req.add("ack", a);
+        if (!rel.isEmpty()) { JsonArray r = new JsonArray(); for (String id : rel) r.add(id); req.add("release", r); }
         req.addProperty("limit", LIMIT);
         byte[] body = req.toString().getBytes(StandardCharsets.UTF_8);
         int code; String resp;
@@ -132,6 +179,8 @@ public final class VotePoller {
             c.setRequestProperty("X-CR-Key", cfg.keyId());
             c.setRequestProperty("X-CR-Timestamp", Long.toString(ts));
             c.setRequestProperty("X-CR-Signature", sig);
+            if (instance != null) c.setRequestProperty("X-CR-Instance", instance);
+            if (userAgent != null) c.setRequestProperty("User-Agent", userAgent);
             try (OutputStream os = c.getOutputStream()) { os.write(body); }
             code = c.getResponseCode();
             resp = VoteForwarder.readBody(code >= 400 ? c.getErrorStream() : c.getInputStream());
@@ -140,13 +189,15 @@ public final class VotePoller {
         } finally {
             if (c != null) c.disconnect();
         }
-        return handle(code, resp, ack);
+        return handle(code, resp, ack, rel);
     }
 
-    long handle(int code, String resp, List<String> sentAck) {
+    long handle(int code, String resp, List<String> sentAck) { return handle(code, resp, sentAck, new ArrayList<>()); }
+
+    long handle(int code, String resp, List<String> sentAck, List<String> sentRelease) {
         JsonObject j = null;
         try { JsonElement e = JsonParser.parseString(resp == null ? "" : resp); if (e.isJsonObject()) j = e.getAsJsonObject(); } catch (Exception ignored) { }
-        if (code == 200 && j != null) return ok(j, sentAck);
+        if (code == 200 && j != null) return ok(j, sentAck, sentRelease);
         String st = j != null && j.has("status") && j.get("status").isJsonPrimitive() ? j.get("status").getAsString() : "";
         if (code == 429) {
             long ra = 1;
@@ -157,16 +208,24 @@ public final class VotePoller {
         if (code == 401 || code == 403) return fail("ключ не принят (HTTP " + code + "): проверьте key_id и secret, включён ли приём от плагина в кабинете и время сервера (NTP)", true);
         if (code == 404) return fail("сервер не опубликован на CraftRadar или снят с каталога (HTTP 404)", true);
         if (code >= 300 && code < 400) return fail("редирект HTTP " + code + ": укажите в api_url точный адрес https://craftradar.ru", true);
-        if (code == 400) { pendingAck.clear(); save(); return fail("сайт отклонил запрос (HTTP 400 " + st + ")", false); }
+        if (code == 400) { pendingAck.clear(); pendingRelease.clear(); save(); return fail("сайт отклонил запрос (HTTP 400 " + st + ")", false); }
         if (code == 503 && "pull_not_configured".equals(st)) return fail("на CraftRadar ещё не включён режим «Наш плагин» (обновление сайта)", true);
         if (code == 503) return fail("приём голосов на CraftRadar временно выключен (" + st + ")", false);
         return fail("CraftRadar ответил HTTP " + code, false);
     }
 
-    private long ok(JsonObject j, List<String> sentAck) {
+    private long ok(JsonObject j, List<String> sentAck, List<String> sentRelease) {
         long now = clock.getAsLong();
         boolean dirty = false;
         for (String id : sentAck) dirty |= pendingAck.remove(id); // подтверждены (или сайт их уже не знает: TTL) — больше не шлём
+        pendingRelease.removeAll(sentRelease);
+        if (!sentRelease.isEmpty()) {
+            if (j.has("released")) { try { releasedTotal += j.get("released").getAsLong(); } catch (Exception ignored) { } }
+            else if (now >= noReleaseUntil) {   // сайт без release (до обновления): голос вернётся сюда же — выдаём как any, проверим снова через час
+                noReleaseUntil = now + NO_RELEASE_RECHECK_MS;
+                log.warning("CraftRadarVotes: network.reward_where: online — CraftRadar пока не принимает возврат голосов, голоса выдаются как в режиме any (проверю снова через час)");
+            }
+        }
         String m = str(j, "mode");
         if (m != null && !m.equals(mode)) {
             if ("votifier".equals(m)) log.info("CraftRadarVotes: в кабинете CraftRadar выбран способ «Без нашего плагина» (Votifier) — голоса CraftRadar придут через Votifier, а не опросом.");
@@ -182,6 +241,8 @@ public final class VotePoller {
                 if (id == null || !ID.matcher(id).matches()) continue;
                 if (seen.containsKey(id)) { dirty |= pendingAck.add(id); continue; } // уже обработан, ack потерялся
                 PulledVote pv = new PulledVote(id, nz(str(v, "service_name"), "CraftRadar"), str(v, "username"), nz(str(v, "address"), ""), nz(str(v, "timestamp"), Long.toString(now)));
+                if (elsewhere(pv, now)) { pendingRelease.add(id); continue; }
+                firstSeen.remove(id);
                 boolean accepted;
                 try { accepted = pv.username != null && sink.accept(pv); }
                 catch (Exception ex) { accepted = false; lastError = "обработчик голоса: " + ex; }
@@ -207,10 +268,22 @@ public final class VotePoller {
         if (!stopped) lastError = null;
         boolean more = j.has("more") && j.get("more").isJsonPrimitive() && j.get("more").getAsBoolean();
         if (stopped) return Backoff.delayMs(1, rnd);
-        if (!pendingAck.isEmpty() || more) return 1000; // подтвердить сразу (и забрать остаток)
+        if (!pendingAck.isEmpty() || !pendingRelease.isEmpty() || more) return 1000; // подтвердить сразу (и забрать остаток)
         long after = 0;
         try { after = j.get("poll_after").getAsLong(); } catch (Exception ignored) { }
         return Math.max(cfg.pullIntervalSec(), Math.min(300, after)) * 1000L;
+    }
+
+    /** network.reward_where: online — игрока здесь нет, а offline_fallback_min с голоса ещё не прошло: вернуть голос сети. */
+    private boolean elsewhere(PulledVote pv, long now) {
+        Predicate<String> on = online;
+        if (!cfg.rewardOnline() || on == null || pv.username == null || now < noReleaseUntil) return false;
+        long ts = pv.timestampMs();
+        if (ts <= 0 || ts > now) { Long f = firstSeen.get(pv.id); if (f == null) firstSeen.put(pv.id, f = now); ts = f; }
+        if (now - ts >= cfg.offlineFallbackMin() * 60_000L) return false;   // никто не взял — выдаём здесь (офлайн-очередь наград)
+        try { if (on.test(pv.username)) return false; } catch (Exception e) { return false; }
+        while (firstSeen.size() > 1000) { Iterator<String> it = firstSeen.keySet().iterator(); it.next(); it.remove(); }
+        return true;
     }
 
     private long fail(String why, boolean longBackoff) {
@@ -269,4 +342,5 @@ public final class VotePoller {
     public long lastOkAt() { return lastOkAt; }
     public long received() { return received; }
     public synchronized int pendingAcks() { return pendingAck.size(); }
+    public long released() { return releasedTotal; }
 }

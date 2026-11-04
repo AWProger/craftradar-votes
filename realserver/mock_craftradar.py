@@ -12,6 +12,8 @@ JSON-тело; принятые события пишет строкой JSON в
 Управление (только для сценария, без подписи): POST /_mock/queue {"votes":[{id,username,...}], "diagnostics":[id],
 "mode":"pull|votifier|off"} — повторно поставленный id снова становится неподтверждённым (имитация потерянного ack);
 GET /_mock/state -> {"mode", "pending":[id], "acked":[id], "diagnostics":[id]}.
+Сеть (1.4.0): экземпляр = X-CR-Instance (иначе ip:User-Agent); выданный голос арендуется экземпляру на --lease-sec,
+release снимает свою аренду и не выдаёт голос этому экземпляру --decline-sec (ответ с released); --no-release — сайт без qa_165.
 Без TTL 7 дней и модерации: в тестах не нужны.
 """
 import argparse, hashlib, hmac, json, os, re, secrets, threading, time
@@ -26,7 +28,7 @@ def sign(secret, ts, key, body):
 
 def make_handler(a):
     lock = threading.Lock()
-    st = {'n': 0, 'mode': a.pull_mode, 'votes': {}, 'diag': [], 'hits': []}   # votes: id -> {'v': dict, 'acked': bool}
+    st = {'n': 0, 'mode': a.pull_mode, 'votes': {}, 'diag': [], 'hits': {}}   # votes: id -> {'v': dict, 'acked': bool}
 
     class H(BaseHTTPRequestHandler):
         def reply(self, code, obj):
@@ -86,11 +88,13 @@ def make_handler(a):
 
         def pull(self, body):
             now = time.time()
-            st['hits'] = [t for t in st['hits'] if now - t < 60]
-            if len(st['hits']) >= a.pull_rate:
-                ra = max(1, int(60 - (now - st['hits'][0])) + 1)
+            hk = self.headers.get('X-CR-Instance') or 'ip:' + self.headers.get('User-Agent', '')   # как сайт: лимит на ключ + экземпляр
+            hits = st['hits'].setdefault(hk, [])
+            hits[:] = [t for t in hits if now - t < 60]
+            if len(hits) >= a.pull_rate:
+                ra = max(1, int(60 - (now - hits[0])) + 1)
                 self.record('pull_429', retry_after=ra); return self.reply(429, {'status': 'rate_limited', 'retry_after': ra})
-            st['hits'].append(now)
+            hits.append(now)
             if st['mode'] == 'off':
                 self.record('pull_503'); return self.reply(503, {'status': 'pull_not_configured'})
             bad = lambda f: (self.record('pull_400', field=f), self.reply(400, {'status': 'invalid', 'field': f}))
@@ -102,9 +106,14 @@ def make_handler(a):
                 return bad('body')
             if not isinstance(req, dict):
                 return bad('body')
-            ack, limit = req.get('ack', []), req.get('limit', 50)
-            if not isinstance(ack, list) or len(ack) > 100 or not all(isinstance(i, str) and ID.match(i) for i in ack):
+            ack, limit, rel = req.get('ack', []), req.get('limit', 50), req.get('release', [])
+            ids = lambda l: isinstance(l, list) and len(l) <= 100 and all(isinstance(i, str) and ID.match(i) for i in l)
+            if not ids(ack):
                 return bad('ack')
+            if not ids(rel):
+                return bad('release')
+            ua = self.headers.get('User-Agent', '')
+            inst = self.headers.get('X-CR-Instance') or 'ip:' + ua
             if type(limit) is not int or not 0 <= limit <= 100:
                 return bad('limit')
             acked = 0
@@ -112,12 +121,24 @@ def make_handler(a):
                 v = st['votes'].get(i)
                 if v and not v['acked']:
                     v['acked'] = True; acked += 1
-            pending = [] if st['mode'] == 'votifier' else [x['v'] for x in st['votes'].values() if not x['acked']]
+            released = 0
+            for i in ([] if a.no_release else rel):
+                v = st['votes'].get(i)
+                if v and not v['acked'] and v.get('lease', ('', 0))[0] == inst:
+                    v['lease'] = ('', 0); v.setdefault('declined', {})[inst] = now + a.decline_sec; released += 1
+            free = lambda x: (x.get('lease', ('', 0))[1] < now or x['lease'][0] == inst) and x.get('declined', {}).get(inst, 0) < now
+            pending = [] if st['mode'] == 'votifier' else [x for x in st['votes'].values() if not x['acked'] and free(x)]
+            for x in pending[:limit]:
+                x['lease'] = (inst, now + a.lease_sec)
+            pending = [x['v'] for x in pending]
             votes = pending[:limit]
             resp = {'status': 'ok', 'request_id': secrets.token_hex(8), 'mode': st['mode'],
                     'poll_after': 60 if st['mode'] == 'votifier' else 5, 'acked': acked, 'more': len(pending) > limit,
                     'votes': votes, 'diagnostics': list(st['diag'])}
-            self.record('pull', ack=ack, limit=limit, acked=acked, votes=[v['id'] for v in votes], more=resp['more'])
+            if not a.no_release:
+                resp['released'] = released
+            self.record('pull', ack=ack, limit=limit, acked=acked, votes=[v['id'] for v in votes], more=resp['more'],
+                        release=rel, released=released, inst=inst, ua=ua)
             return self.reply(200, resp)
 
         def control(self, body):
@@ -147,6 +168,9 @@ def main(argv=None):
     ap.add_argument('--down', default='')
     ap.add_argument('--pull-mode', default='pull', choices=['pull', 'votifier', 'off'])
     ap.add_argument('--pull-rate', type=int, default=30, help='запросов vote_pull за 60 с на ключ, дальше 429')
+    ap.add_argument('--lease-sec', type=float, default=15)
+    ap.add_argument('--decline-sec', type=float, default=20, help='сайт: 5 мин; в тестах короче')
+    ap.add_argument('--no-release', action='store_true', help='сайт без release (до qa_165)')
     a = ap.parse_args(argv)
     return ThreadingHTTPServer(('127.0.0.1', a.port), make_handler(a))
 

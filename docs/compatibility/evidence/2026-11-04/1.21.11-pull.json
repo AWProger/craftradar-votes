@@ -1,0 +1,162 @@
+{
+ "version": "1.21.11",
+ "java": "jdk21",
+ "jar": "craftradar-votes-1.4.0.jar",
+ "upgrade_from": "",
+ "no_votifier": false,
+ "pull": true,
+ "network": false,
+ "passed": true,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "1.21.11"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": true,
+   "detail": "Enabling CraftRadarVotes v1.4.0"
+  },
+  {
+   "id": "start1.no_votifier_info_once",
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "id": "start1.config_created",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "pull.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull.bridge_ready",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull.vote_fetched",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull.vote_acked",
+   "ok": true,
+   "detail": "{'mode': 'pull', 'pending': [], 'acked': ['a1b2c3d4e5f60718'], 'diagnostics': []}"
+  },
+  {
+   "id": "pull.reward_once",
+   "ok": true,
+   "detail": "2026-11-04T03:27:47.935Z\tVOTE_RECEIVED\tcrdv1:a1b2c3d4e5f60718\tDave\tсервис=CraftRadar\n2026-11-04T03:27:47.954Z\tCOMPUTED\tcrdv1:a1b2c3d4e5f60718\tDave\tдействий=3, серия=0\n2026-11-04T03:27:47.963Z\tQUEUED\tcrdv1:a1b2c3d4e5f60718\tdave\tигрок не в сети\n"
+  },
+  {
+   "id": "pull.diag_ack_delivered",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull.diag_not_rewarded",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull.retry_after_503",
+   "ok": true,
+   "detail": "['simulated_503', 'pull', 'accepted']"
+  },
+  {
+   "id": "pull.hmac_all_valid",
+   "ok": true,
+   "detail": "['simulated_503', 'pull', 'accepted', 'pull']"
+  },
+  {
+   "id": "pull.status_cmd",
+   "ok": true,
+   "detail": "т подтверждения сайтом: 0\n[03:27:49 INFO]: NuVotifier: не установлен (не обязателен; нужен только для голосов других мониторингов)\n[03:27:49 INFO]: Награды: включены — подробно: /crvotes rewards status\n[03:27:49 INFO]: Очередь статистики: 0, в rejected/: 0 (макс. 1000)\n[03:27:49 INFO]: Последняя отправка статистики: 2026-11-04T03:27:48.163Z\n[03:27:49 INFO]: Скины: выключены (skins.enabled: false)\n"
+  },
+  {
+   "id": "pull.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "pull.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "pull_restart.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull_restart.new_vote_acked",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull_restart.dup_acked_again",
+   "ok": true,
+   "detail": "{'mode': 'pull', 'pending': [], 'acked': ['a1b2c3d4e5f60718', '0f1e2d3c4b5a6978'], 'diagnostics': []}"
+  },
+  {
+   "id": "pull_restart.no_duplicate_reward",
+   "ok": true,
+   "detail": "026-11-04T03:27:47.954Z\tCOMPUTED\tcrdv1:a1b2c3d4e5f60718\tDave\tдействий=3, серия=0\n2026-11-04T03:27:47.963Z\tQUEUED\tcrdv1:a1b2c3d4e5f60718\tdave\tигрок не в сети\n2026-11-04T03:28:44.134Z\tVOTE_RECEIVED\tcrdv1:0f1e2d3c4b5a6978\tErin\tсервис=CraftRadar\n2026-11-04T03:28:44.186Z\tCOMPUTED\tcrdv1:0f1e2d3c4b5a6978\tErin\tдействий=3, серия=0\n2026-11-04T03:28:44.189Z\tQUEUED\tcrdv1:0f1e2d3c4b5a6978\terin\tигрок не в сети\n"
+  },
+  {
+   "id": "pull_restart.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "pull_restart.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "pull_lost_state.server_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "pull_lost_state.dup_acked",
+   "ok": true,
+   "detail": "{'mode': 'pull', 'pending': [], 'acked': ['0f1e2d3c4b5a6978', 'a1b2c3d4e5f60718'], 'diagnostics': []}"
+  },
+  {
+   "id": "pull_lost_state.duplicate_rejected",
+   "ok": true,
+   "detail": "Z\tVOTE_RECEIVED\tcrdv1:0f1e2d3c4b5a6978\tErin\tсервис=CraftRadar\n2026-11-04T03:28:44.186Z\tCOMPUTED\tcrdv1:0f1e2d3c4b5a6978\tErin\tдействий=3, серия=0\n2026-11-04T03:28:44.189Z\tQUEUED\tcrdv1:0f1e2d3c4b5a6978\terin\tигрок не в сети\n2026-11-04T03:29:34.847Z\tVOTE_RECEIVED\tcrdv1:a1b2c3d4e5f60718\tDave\tсервис=CraftRadar\n2026-11-04T03:29:34.853Z\tREJECTED_DUPLICATE\tcrdv1:a1b2c3d4e5f60718\tDave\tсобытие уже обработано\n"
+  },
+  {
+   "id": "pull_lost_state.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "pull_lost_state.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  }
+ ]
+}

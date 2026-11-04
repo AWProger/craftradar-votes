@@ -6,6 +6,8 @@
 
 --pull: способ «Наш плагин» без NuVotifier — голос ставится в очередь мока vote_pull, плагин забирает и подтверждает его,
 награда считается один раз; после рестарта (и после потери pull-state.json) повтор того же id не награждается.
+--pull --network: два сервера на одном ключе (сеть). any — голос получает ровно один сервер; online — игрок (бот) на втором
+сервере, награда только на втором; игрок нигде не в сети — через offline_fallback_min (1 мин) ровно один сервер ставит её в очередь.
 
 Только localhost, тестовые ключи. Итог: <work>/<name>/result.json (+ console-*.log, mock.jsonl). Код выхода 0 = все проверки PASS.
 """
@@ -25,6 +27,7 @@ ap.add_argument("--port-base", type=int, default=31000)
 ap.add_argument("--no-votifier", action="store_true")
 ap.add_argument("--upgrade-from", default="")
 ap.add_argument("--pull", action="store_true", help="сценарий pull (vote_pull.php) без NuVotifier")
+ap.add_argument("--network", action="store_true", help="с --pull: два сервера на одном ключе, network.reward_where any и online")
 ap.add_argument("--classic-votifier", action="store_true", help="classic Votifier 1.9 (только v1, без additionalData) вместо NuVotifier")
 ap.add_argument("--bot", default=os.environ.get("CRV_BOT_NODE_PATH", ""), help="node_modules с mineflayer: проверка выдачи наград игроку")
 ap.add_argument("--no-bot", action="store_true", help="версия не поддерживается mineflayer: награды игроку не проверяются (NOT_TESTED)")
@@ -32,7 +35,7 @@ ap.add_argument("--bot-version", default="", help="версия протокол
 ap.add_argument("--javac", default=os.environ.get("CRV_TOOL_JAVA", "java"), help="java 11+ для VoteSend.java")
 a = ap.parse_args()
 
-name = a.version + ("-novotifier" if a.no_votifier else "") + ("-classic" if a.classic_votifier else "") + ("-upgrade" if a.upgrade_from else "") + ("-pull" if a.pull else "")
+name = a.version + ("-novotifier" if a.no_votifier else "") + ("-classic" if a.classic_votifier else "") + ("-upgrade" if a.upgrade_from else "") + ("-pull" if a.pull else "") + ("-network" if a.network else "")
 wd = os.path.join(a.work, name)
 if os.path.exists(wd):
     sys.exit(f"{wd} уже существует: укажите новый --work (старые прогоны не удаляются)")
@@ -61,12 +64,12 @@ def read(p):
 
 
 class Server:
-    def __init__(self, tag):
+    def __init__(self, tag, cwd=None):
         self.log = os.path.join(wd, f"console-{tag}.log")
         self.out = open(self.log, "w")
         cmd = [a.java, "-Xms512M", "-Xmx1G", "-DIReallyKnowWhatIAmDoingISwear=true", "-Dpaper.disableStartupVersionCheck=true",
                "-jar", "paper.jar", "nogui"]
-        self.p = subprocess.Popen(cmd, cwd=srv, stdin=subprocess.PIPE, stdout=self.out, stderr=subprocess.STDOUT, text=True,
+        self.p = subprocess.Popen(cmd, cwd=cwd or srv, stdin=subprocess.PIPE, stdout=self.out, stderr=subprocess.STDOUT, text=True,
                                   start_new_session=True)
         SERVERS.append(self)
 
@@ -295,6 +298,87 @@ def pull_flow():
     check("pull_lost_state.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
 
 
+def network_flow():
+    """Сеть: один ключ на двух серверах (A — srv, B — srv2 на соседнем порту)."""
+    srv2 = os.path.join(wd, "srv2")
+    os.makedirs(os.path.join(srv2, "plugins", "CraftRadarVotes"))
+    plugin_config()
+    cfg = os.path.join(srv, "plugins", "CraftRadarVotes", "config.yml")
+    write(cfg, re.sub(r'(?m)^  offline_fallback_min: 30', '  offline_fallback_min: 1', read(cfg)))
+    for d, n in ((srv, "crv-a"), (srv2, "crv-b")):
+        if d == srv2:
+            for f in ("paper.jar", "eula.txt", os.path.join("plugins", "craftradar-votes.jar")):
+                shutil.copy(os.path.join(srv, f), os.path.join(srv2, f))
+            write(os.path.join(srv2, "server.properties"), read(os.path.join(srv, "server.properties")).replace(f"server-port={MC}", f"server-port={MC + 1}"))
+        write(os.path.join(d, "plugins", "CraftRadarVotes", "config.yml"), re.sub(r'(?m)^server_name: .*$', f'server_name: "{n}"', read(cfg)))
+    rl = {d: os.path.join(d, "plugins", "CraftRadarVotes", "rewards.log") for d in (srv, srv2)}
+    computed = lambda d, v: len(re.findall(rf"(?m)\tCOMPUTED\tcrdv1:{v}\t", read(rl[d])))
+    total = lambda v: computed(srv, v) + computed(srv2, v)
+    acked = lambda v: wait_mock(lambda e: e.get("verdict") == "pull" and v in e.get("ack", []), 90)
+    start_mock(0)
+    A, B = Server("2-net-a"), Server("2-net-b", srv2)
+    check("net.servers_done", A.wait(r"Done \(", 300) and B.wait(r"Done \(", 300))
+    pulls = lambda: [e for e in mock_events() if e.get("verdict") == "pull"]
+    wait_mock(lambda e: e.get("verdict") == "pull" and "crv-b" in e.get("ua", ""), 60)
+    insts = {e["inst"]: e["ua"] for e in pulls()}
+    check("net.two_instances", len(insts) == 2 and all(re.match(r"^crv-[0-9a-f]{32}-\d+$", i) for i in insts), insts)
+    check("net.user_agent", sorted(re.sub(r"\(\S+ [\d.]+;", "(CORE;", u) for u in insts.values()) == ["CraftRadarVotes/1.4.0 (CORE; crv-a)", "CraftRadarVotes/1.4.0 (CORE; crv-b)"], insts)
+    # any: игрок нигде не в сети — голос получает ровно один сервер (аренда), награда в его офлайн-очереди
+    v0 = "aa00000000000001"
+    mock_ctl({"votes": [{"id": v0, "username": "Dave"}]})
+    check("net_any.vote_acked", acked(v0))
+    time.sleep(8)
+    check("net_any.reward_once_on_one_server", total(v0) == 1, (computed(srv, v0), computed(srv2, v0)))
+    # online: оба сервера — reward_where: online
+    for d, s in ((srv, A), (srv2, B)):
+        c = os.path.join(d, "plugins", "CraftRadarVotes", "config.yml")
+        write(c, re.sub(r'(?m)^  reward_where: any', '  reward_where: online', read(c)))
+        s.cmd("crvotes reload")
+    check("net_online.reloaded", A.wait(r"сеть: награда там, где игрок онлайн", 60) and B.wait(r"сеть: награда там, где игрок онлайн", 60))
+    env = dict(os.environ, NODE_PATH=a.bot)
+    blog = os.path.join(wd, "bot-b.jsonl")
+    bot = None
+    if a.bot and not a.no_bot:
+        bot = subprocess.Popen(["node", os.path.join(HERE, "bot.js"), str(MC + 1), "Bob", "120"] + ([a.bot_version] if a.bot_version else []),
+                               stdout=open(blog, "w"), stderr=subprocess.STDOUT, env=env, start_new_session=True)
+        check("net_online.bot_joined_b", wait_text(blog, '"spawned"', 90), read(blog)[-300:])
+    else:
+        B.cmd("say no bot")  # без бота сценарий online не проверить
+        check("net_online.bot_available", False, "нужен --bot (mineflayer)")
+    v1 = "bb00000000000001"
+    t1 = time.time()
+    mock_ctl({"votes": [{"id": v1, "username": "Bob"}]})
+    check("net_online.vote_acked", acked(v1))
+    time.sleep(5)
+    check("net_online.reward_only_on_b", computed(srv2, v1) == 1 and computed(srv, v1) == 0, (computed(srv, v1), computed(srv2, v1)))
+    check("net_online.granted_to_player_on_b", wait_text(rl[srv2], r"(?i)GRANTED\t[^\t]*\tbob", 20) and wait_text(blog, r'"diamonds": ?[1-9]', 20), read(rl[srv2])[-300:])
+    a_inst = [i for i, u in insts.items() if u.endswith("crv-a)")]
+    a_got = [e for e in pulls() if e["t"] >= t1 and e["inst"] in a_inst and v1 in e["votes"]]
+    a_rel = [e for e in pulls() if e["t"] >= t1 and e["inst"] in a_inst and v1 in e.get("release", []) and e.get("released") == 1]
+    check("net_online.a_released_if_offered", not a_got or a_rel, (len(a_got), len(a_rel)))
+    # online, игрок нигде не в сети: оба возвращают; через offline_fallback_min (1 мин) голос берёт один сервер в офлайн-очередь
+    v2 = "cc00000000000001"
+    t2 = time.time()
+    mock_ctl({"votes": [{"id": v2, "username": "Erin"}]})
+    check("net_fallback.released_first", wait_mock(lambda e: e.get("verdict") == "pull" and e["t"] >= t2 and v2 in e.get("release", []), 60))
+    check("net_fallback.not_before_timeout", total(v2) == 0)
+    check("net_fallback.vote_acked", wait_mock(lambda e: e.get("verdict") == "pull" and v2 in e.get("ack", []), 180) and time.time() - t2 >= 55, round(time.time() - t2))
+    time.sleep(5)
+    check("net_fallback.queued_once", total(v2) == 1 and re.search(rf"QUEUED\tcrdv1:{v2}\terin", read(rl[srv]) + read(rl[srv2]), re.I), (computed(srv, v2), computed(srv2, v2)))
+    for s in (A, B):
+        s.cmd("crvotes status")
+    check("net.status_released", B.wait(r"отдано другим серверам сети", 20) or A.wait(r"отдано другим серверам сети", 20))
+    if bot:
+        try:
+            bot.wait(150)
+        except subprocess.TimeoutExpired:
+            os.killpg(bot.pid, signal.SIGKILL)
+    for tag, s in (("net_a", A), ("net_b", B)):
+        rc = s.stop()
+        no_linkage_errors(s.text(), tag)
+        check(f"{tag}.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
+
+
 def main():
     shutil.copy(os.path.join(a.cache, f"paper-{a.version}.jar"), os.path.join(srv, "paper.jar"))
     write(os.path.join(srv, "eula.txt"), "eula=true\n")
@@ -327,6 +411,8 @@ def main():
     check("start1.clean_stop", "Disabling CraftRadarVotes" in s.text(), f"rc={rc}")
     if a.no_votifier or not up:
         return
+    if a.pull and a.network:
+        return network_flow()
     if a.pull:
         return pull_flow()
 
@@ -427,7 +513,7 @@ finally:
         if sv.p.poll() is None:
             os.killpg(sv.p.pid, signal.SIGKILL)
     res = {"version": a.version, "java": a.java, "jar": os.path.basename(a.jar), "upgrade_from": a.upgrade_from,
-           "no_votifier": a.no_votifier, "pull": a.pull, "passed": all(c["ok"] for c in checks) and bool(checks), "checks": checks}
+           "no_votifier": a.no_votifier, "pull": a.pull, "network": a.network, "passed": all(c["ok"] for c in checks) and bool(checks), "checks": checks}
     write(os.path.join(wd, "result.json"), json.dumps(res, ensure_ascii=False, indent=1))
     print("RESULT", name, "PASS" if res["passed"] else "FAIL", f"{sum(c['ok'] for c in checks)}/{len(checks)}")
     sys.exit(0 if res["passed"] else 1)

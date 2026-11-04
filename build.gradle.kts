@@ -1,7 +1,7 @@
 // Версия плагина и общие правила; модули: core/, bukkit/. Итоговый jar: bukkit/build/libs/craftradar-votes-<ver>.jar
 allprojects {
     group = "ru.craftradar"
-    version = "1.3.0"
+    version = "1.4.0"
 }
 
 subprojects {

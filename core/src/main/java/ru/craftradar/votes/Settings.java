@@ -12,6 +12,8 @@ public final class Settings {
     private final int maxQueueSize;
     private final boolean pullEnabled;
     private final int pullIntervalSec;
+    private final String serverName, rewardWhere;
+    private final int offlineFallbackMin;
 
     public Settings(boolean enabled, String apiUrl, String keyId, String secret,
                     boolean allowInsecureHttp, int maxQueueSize, String logLevel) {
@@ -21,10 +23,23 @@ public final class Settings {
     /** pullEnabled/pullIntervalSec — поток C (PROTOCOL §10): забирать голоса CraftRadar с сайта. */
     public Settings(boolean enabled, String apiUrl, String keyId, String secret,
                     boolean allowInsecureHttp, int maxQueueSize, String logLevel, boolean pullEnabled, int pullIntervalSec) {
+        this(enabled, apiUrl, keyId, secret, allowInsecureHttp, maxQueueSize, logLevel, pullEnabled, pullIntervalSec, "", "any", 30);
+    }
+
+    /** serverName — имя в кабинете (User-Agent); rewardWhere any|online, offlineFallbackMin — режим сети (один ключ на несколько серверов). */
+    public Settings(boolean enabled, String apiUrl, String keyId, String secret, boolean allowInsecureHttp, int maxQueueSize, String logLevel,
+                    boolean pullEnabled, int pullIntervalSec, String serverName, String rewardWhere, int offlineFallbackMin) {
+        this.serverName = serverName == null ? "" : serverName.trim();
+        this.rewardWhere = rewardWhere == null ? "any" : rewardWhere.trim().toLowerCase(java.util.Locale.ROOT);
+        this.offlineFallbackMin = offlineFallbackMin;
         this.enabled = enabled; this.apiUrl = apiUrl; this.keyId = keyId; this.secret = secret;
         this.allowInsecureHttp = allowInsecureHttp; this.maxQueueSize = maxQueueSize; this.logLevel = logLevel;
         this.pullEnabled = pullEnabled; this.pullIntervalSec = pullIntervalSec;
     }
+    public String serverName() { return serverName; }
+    /** network.reward_where: online — выдавать только там, где игрок в сети. */
+    public boolean rewardOnline() { return "online".equals(rewardWhere); }
+    public int offlineFallbackMin() { return offlineFallbackMin; }
     public boolean pullEnabled() { return pullEnabled; }
     public int pullIntervalSec() { return pullIntervalSec; }
     public boolean enabled() { return enabled; }
@@ -65,6 +80,8 @@ public final class Settings {
         }
         if (maxQueueSize < 1) e.add("max_queue_size должен быть >= 1");
         if (pullIntervalSec < 2 || pullIntervalSec > 60) e.add("pull.interval_sec должен быть от 2 до 60 секунд");
+        if (!rewardWhere.equals("any") && !rewardWhere.equals("online")) e.add("network.reward_where: допустимо any или online");
+        if (offlineFallbackMin < 1 || offlineFallbackMin > 1440) e.add("network.offline_fallback_min должен быть от 1 до 1440 минут");
         return e;
     }
 

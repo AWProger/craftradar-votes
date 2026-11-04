@@ -1,0 +1,147 @@
+{
+ "version": "1.21.11",
+ "java": "jdk21",
+ "jar": "craftradar-votes-1.4.0.jar",
+ "upgrade_from": "",
+ "no_votifier": false,
+ "pull": true,
+ "network": true,
+ "passed": true,
+ "checks": [
+  {
+   "id": "start1.server_done",
+   "ok": true,
+   "detail": "1.21.11"
+  },
+  {
+   "id": "start1.plugin_enabled",
+   "ok": true,
+   "detail": "Enabling CraftRadarVotes v1.4.0"
+  },
+  {
+   "id": "start1.no_votifier_info_once",
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "id": "start1.config_created",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.status_cmd",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "start1.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "start1.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "net.servers_done",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net.two_instances",
+   "ok": true,
+   "detail": "{'crv-302f1931c04146be8e10bf8539552c9d-31565': 'CraftRadarVotes/1.4.0 (Paper 1.21.11; crv-a)', 'crv-85afcf4aa8b848d3907577cf02c8b4fd-31566': 'CraftRadarVotes/1.4.0 (Paper 1.21.11; crv-b)'}"
+  },
+  {
+   "id": "net.user_agent",
+   "ok": true,
+   "detail": "{'crv-302f1931c04146be8e10bf8539552c9d-31565': 'CraftRadarVotes/1.4.0 (Paper 1.21.11; crv-a)', 'crv-85afcf4aa8b848d3907577cf02c8b4fd-31566': 'CraftRadarVotes/1.4.0 (Paper 1.21.11; crv-b)'}"
+  },
+  {
+   "id": "net_any.vote_acked",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net_any.reward_once_on_one_server",
+   "ok": true,
+   "detail": "(1, 0)"
+  },
+  {
+   "id": "net_online.reloaded",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net_online.bot_joined_b",
+   "ok": true,
+   "detail": "{\"chat\":\"Bob joined the game\"}\n{\"spawned\":true,\"version\":\"1.21.11\"}\n"
+  },
+  {
+   "id": "net_online.vote_acked",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net_online.reward_only_on_b",
+   "ok": true,
+   "detail": "(0, 1)"
+  },
+  {
+   "id": "net_online.granted_to_player_on_b",
+   "ok": true,
+   "detail": " серия=0\n2026-11-04T03:15:06.852Z\tACTION_DONE\tcrdv1:bb00000000000001#1\tBob\tCOMMAND\n2026-11-04T03:15:06.854Z\tACTION_DONE\tcrdv1:bb00000000000001#2\tBob\tITEM\n2026-11-04T03:15:06.859Z\tACTION_DONE\tcrdv1:bb00000000000001#3\tBob\tMESSAGE\n2026-11-04T03:15:06.877Z\tGRANTED\tcrdv1:bb00000000000001\tBob\tдействий: 3\n"
+  },
+  {
+   "id": "net_online.a_released_if_offered",
+   "ok": true,
+   "detail": "(1, 1)"
+  },
+  {
+   "id": "net_fallback.released_first",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net_fallback.not_before_timeout",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net_fallback.vote_acked",
+   "ok": true,
+   "detail": "69"
+  },
+  {
+   "id": "net_fallback.queued_once",
+   "ok": true,
+   "detail": "(1, 0)"
+  },
+  {
+   "id": "net.status_released",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "net_a.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "net_a.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  },
+  {
+   "id": "net_b.no_linkage_or_plugin_errors",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "net_b.clean_stop",
+   "ok": true,
+   "detail": "rc=0"
+  }
+ ]
+}

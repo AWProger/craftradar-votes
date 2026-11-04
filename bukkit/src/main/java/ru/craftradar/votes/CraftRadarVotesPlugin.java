@@ -260,7 +260,8 @@ public final class CraftRadarVotesPlugin extends JavaPlugin {
             Settings s = new Settings(c.getBoolean("enabled", true), c.getString("api_url", ""),
                     c.getString("key_id", ""), c.getString("secret", ""),
                     c.getBoolean("allow_insecure_http", false), c.getInt("max_queue_size", 5000), c.getString("log_level", "info"),
-                    c.getBoolean("pull.enabled", true), c.getInt("pull.interval_sec", 5));
+                    c.getBoolean("pull.enabled", true), c.getInt("pull.interval_sec", 5),
+                    c.getString("server_name", ""), c.getString("network.reward_where", "any"), c.getInt("network.offline_fallback_min", 30));
             String ll = s.logLevel() == null ? "" : s.logLevel().toLowerCase();
             Level lvl = ll.equals("debug") ? Level.FINE : ll.equals("warn") ? Level.WARNING : ll.equals("error") ? Level.SEVERE : Level.INFO;
             getLogger().setLevel(lvl);
@@ -284,11 +285,16 @@ public final class CraftRadarVotesPlugin extends JavaPlugin {
                         VoteForwarder ff = fwd;
                         if (ff != null) ff.submitDiagnostic(id);
                     });
+                    String name = s.serverName().isEmpty() ? String.valueOf(Bukkit.getMotd()).split("\n", 2)[0] : s.serverName();
+                    p.network(VotePoller.instanceId(getDataFolder().toPath()) + "-" + Bukkit.getPort(),
+                            VotePoller.userAgent(getDescription().getVersion(), Bukkit.getName() + " " + Bukkit.getBukkitVersion().split("-", 2)[0], name),
+                            u -> Bukkit.getPlayerExact(u) != null);
                     p.start();
                     poller = p;
                 }
                 getLogger().info("Готово: ключ " + s.keyId() + ", сайт " + s.baseUrl()
                         + (s.pullEnabled() ? ", голоса CraftRadar забираются каждые " + s.pullIntervalSec() + " с" : ", опрос CraftRadar выключен (pull.enabled: false)")
+                        + (s.pullEnabled() && s.rewardOnline() ? ", сеть: награда там, где игрок онлайн (через " + s.offlineFallbackMin() + " мин — в офлайн-очередь)" : "")
                         + ". В очереди статистики с прошлого запуска: " + f.queueSize());
             } catch (Exception e) {
                 getLogger().severe("Не удалось инициализировать очередь: " + e);
@@ -381,7 +387,8 @@ public final class CraftRadarVotesPlugin extends JavaPlugin {
                     : "votifier".equals(m) ? "«Без нашего плагина» — голоса CraftRadar идут через Votifier, опрос их не приносит"
                     : "ещё не известен (сайт пока не ответил)"));
             out.add("Связь с CraftRadar: " + (p.lastOkAt() == 0 ? "успешных опросов ещё не было" : "последний опрос " + Math.max(0, (now - p.lastOkAt()) / 1000) + " с назад"));
-            out.add("Голосов CraftRadar с запуска: " + p.received() + ", ждут подтверждения сайтом: " + p.pendingAcks());
+            out.add("Голосов CraftRadar с запуска: " + p.received() + ", ждут подтверждения сайтом: " + p.pendingAcks()
+                    + (p.released() > 0 ? ", отдано другим серверам сети (игрок не здесь): " + p.released() : ""));
             if (p.lastError() != null) out.add("Ошибка опроса: " + p.lastError());
         }
         out.add("NuVotifier: " + (registered ? "найден; его голоса " + votifierRewardsWhy : "не установлен (не обязателен; нужен только для голосов других мониторингов)"));

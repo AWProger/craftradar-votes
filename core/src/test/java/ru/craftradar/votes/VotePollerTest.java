@@ -31,6 +31,11 @@ class VotePollerTest {
     final AtomicInteger status = new AtomicInteger(200), sigFailures = new AtomicInteger();
     final AtomicBoolean dropAcks = new AtomicBoolean();
     final AtomicReference<String> mode = new AtomicReference<>("pull"), diag = new AtomicReference<>();
+    /** Режим сети (1.4.0): release поддержан сайтом (qa_165) — вернувшему голос он больше не выдаётся. */
+    final AtomicBoolean siteRelease = new AtomicBoolean(true);
+    final Set<String> declined = Collections.synchronizedSet(new HashSet<>());
+    final List<List<String>> releases = new CopyOnWriteArrayList<>();
+    final AtomicReference<String> voteTs = new AtomicReference<>("1761000000123"), ua = new AtomicReference<>(), inst = new AtomicReference<>();
     Settings cfg;
 
     @BeforeEach void up() throws Exception {
@@ -51,6 +56,11 @@ class VotePollerTest {
                 List<String> got = new ArrayList<>();
                 for (JsonElement e : req.getAsJsonArray("ack")) got.add(e.getAsString());
                 acks.add(got);
+                ua.set(ex.getRequestHeaders().getFirst("User-Agent")); inst.set(ex.getRequestHeaders().getFirst("X-CR-Instance"));
+                List<String> rel = new ArrayList<>();
+                if (req.has("release")) for (JsonElement e : req.getAsJsonArray("release")) rel.add(e.getAsString());
+                releases.add(rel);
+                if (siteRelease.get()) declined.addAll(rel);
                 int acked = 0;
                 if (!dropAcks.get()) for (String id : got) if (pending.remove(id) != null) acked++;
                 JsonObject r = new JsonObject();
@@ -59,9 +69,10 @@ class VotePollerTest {
                 JsonArray votes = new JsonArray();
                 if ("pull".equals(mode.get())) synchronized (pending) {
                     for (Map.Entry<String, String> e : pending.entrySet()) {
+                        if (declined.contains(e.getKey())) continue;
                         JsonObject v = new JsonObject();
                         v.addProperty("id", e.getKey()); v.addProperty("service_name", "CraftRadar"); v.addProperty("username", e.getValue());
-                        v.addProperty("address", "203.0.113.7"); v.addProperty("timestamp", "1761000000123");
+                        v.addProperty("address", "203.0.113.7"); v.addProperty("timestamp", voteTs.get());
                         votes.add(v);
                     }
                 }
@@ -69,6 +80,7 @@ class VotePollerTest {
                 JsonArray d = new JsonArray();
                 if (diag.get() != null) d.add(diag.get());
                 r.add("diagnostics", d);
+                if (siteRelease.get()) r.addProperty("released", rel.size());
                 out = r.toString();
             }
             byte[] b = out.getBytes(StandardCharsets.UTF_8);
@@ -173,6 +185,59 @@ class VotePollerTest {
         assertEquals(0, handled.size(), "в режиме votifier голоса опросом не приходят");
         p.pollOnce();
         assertEquals(Collections.singletonList("00112233aabbccdd"), diags, "диагностика один раз");
+    }
+
+    VotePoller network(int fallbackMin, Set<String> online) {
+        cfg = new Settings(true, cfg.baseUrl(), KEY, SECRET, true, 100, "info", true, 5, "Лобби", "online", fallbackMin);
+        VotePoller p = poller();
+        p.network("test-inst-0001", VotePoller.userAgent("1.4.0", "Paper 1.21.11", "§aЛобби"), online::contains);
+        return p;
+    }
+
+    @Test void networkOnlineGivesVoteBackWhenPlayerIsElsewhere() {
+        voteTs.set(Long.toString(System.currentTimeMillis()));
+        pending.put("00000000000000f1", "Steve");
+        pending.put("00000000000000f2", "Alex");
+        VotePoller p = network(30, Collections.singleton("Alex"));
+        assertEquals(1000, p.pollOnce(), "есть что вернуть — сразу следующий запрос");
+        assertEquals(Collections.singletonList("Alex"), handled.stream().map(v -> v.username).collect(java.util.stream.Collectors.toList()), "Steve не на этом сервере");
+        assertEquals("test-inst-0001", inst.get());
+        assertEquals("CraftRadarVotes/1.4.0 (Paper 1.21.11; %D0%9B%D0%BE%D0%B1%D0%B1%D0%B8)", ua.get(), "UTF-8 имени — %XX, цвет убран");
+        assertEquals("CraftRadarVotes/1.4.0 (Paper 1.8.8; Mini 100%25 x)", VotePoller.userAgent("1.4.0", "Paper 1.8.8", "&lMini; 100% (x)"));
+        assertEquals("CraftRadarVotes/1.4.0 (Paper 1.8.8)", VotePoller.userAgent("1.4.0", "Paper 1.8.8", " "));
+        p.pollOnce();
+        assertEquals(Collections.singletonList("00000000000000f1"), releases.get(1), "release подписанным запросом");
+        assertEquals(Collections.singletonList("00000000000000f2"), acks.get(1));
+        assertEquals(5000, p.pollOnce(), "вернули — ждём обычный интервал");
+        assertEquals(1, handled.size());
+        assertTrue(pending.containsKey("00000000000000f1"), "голос остался на сайте для другого сервера");
+    }
+
+    @Test void networkFallbackAfterTimeoutGoesToOfflineQueue() {
+        voteTs.set(Long.toString(System.currentTimeMillis() - 31 * 60_000L));
+        pending.put("00000000000000f3", "Steve");
+        network(30, Collections.emptySet()).pollOnce();
+        assertEquals(1, handled.size(), "за offline_fallback_min никто не взял — выдаём (офлайн-очередь наград)");
+    }
+
+    @Test void networkOldSiteWithoutReleaseFallsBackToAny() {
+        siteRelease.set(false);
+        voteTs.set(Long.toString(System.currentTimeMillis()));
+        pending.put("00000000000000f4", "Steve");
+        VotePoller p = network(30, Collections.emptySet());
+        p.pollOnce();
+        assertEquals(0, handled.size());
+        p.pollOnce();   // release ушёл, поля released в ответе нет — сайт не умеет; голос вернулся тому же серверу
+        assertEquals(1, handled.size(), "как в режиме any");
+    }
+
+    @Test void instanceIdIsStable() throws Exception {
+        String a = VotePoller.instanceId(tmp), b = VotePoller.instanceId(tmp);
+        assertEquals(a, b);
+        assertTrue(a.matches("^[A-Za-z0-9_.:-]{8,64}$"), a);
+        assertNotEquals(a, VotePoller.instanceId(tmp.resolve("other")));
+        assertTrue(new Settings(true, "https://craftradar.ru", KEY, SECRET, false, 100, "info", true, 5, "", "nowhere", 30).validate().stream().anyMatch(s -> s.contains("network.reward_where")));
+        assertTrue(new Settings(true, "https://craftradar.ru", KEY, SECRET, false, 100, "info", true, 5, "", "online", 0).validate().stream().anyMatch(s -> s.contains("network.offline_fallback_min")));
     }
 
     @Test void pullVectorMatchesProtocol() {
